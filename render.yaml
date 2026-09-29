@@ -1,0 +1,19 @@
+# Render Blueprint — API + painel da CELPLAC GWMI.
+# Render → New → Blueprint → escolha este repositório. Ele lê este arquivo e cria o serviço.
+services:
+  - type: web
+    name: celplac-gwmi
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    region: virginia          # sem região na América do Sul; Virginia é a mais próxima de São Paulo
+    plan: free                # hiberna após 15 min parado; "starter" (US$ 7/mês) fica sempre ligado
+    healthCheckPath: /health    # não toca o banco; /health/db testa a conexão
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL     # string do papel gwmi_api (NÃO a do gwmi_owner), host com -pooler, sslmode=require
+        sync: false           # o Render pede o valor na criação; ele não fica no repositório
+      - key: GWMI_API_KEYS    # chave de acesso do painel/API; o Render gera um valor aleatório
+        generateValue: true
+      - key: GWMI_POOL_MAX
+        value: "5"

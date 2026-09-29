@@ -1,0 +1,41 @@
+# CELPLAC GWMI — Fase 2
+#   docker compose up -d db && docker compose run --rm etl migrate && docker compose run --rm etl seed-demo
+#   docker compose up -d api      → http://localhost:8000/docs
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: gwmi
+      POSTGRES_USER: gwmi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gwmi}
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gwmi -d gwmi"]
+      interval: 5s
+      retries: 10
+
+  etl:
+    build: { context: ., dockerfile: etl/Dockerfile }
+    environment:
+      DATABASE_URL: postgresql://gwmi:${POSTGRES_PASSWORD:-gwmi}@db:5432/gwmi
+      GWMI_RAW_DIR: /data/raw
+      FRED_API_KEY: ${FRED_API_KEY:-}
+      COMTRADE_API_KEY: ${COMTRADE_API_KEY:-}
+    volumes: [rawdata:/data/raw, ./data/inbox:/data/inbox]
+    depends_on: { db: { condition: service_healthy } }
+    profiles: ["tools"]
+
+  api:
+    build: { context: ., dockerfile: backend/Dockerfile }
+    environment:
+      DATABASE_URL: postgresql://gwmi:${POSTGRES_PASSWORD:-gwmi}@db:5432/gwmi
+      GWMI_CORS_ORIGINS: ${GWMI_CORS_ORIGINS:-http://localhost:5173}
+      GWMI_API_KEYS: ${GWMI_API_KEYS:-}          # sem chave a API recusa tudo
+      GWMI_OPEN_READ: ${GWMI_OPEN_READ:-1}        # local: leitura aberta
+    ports: ["8000:8000"]
+    depends_on: { db: { condition: service_healthy } }
+
+volumes:
+  pgdata:
+  rawdata:
