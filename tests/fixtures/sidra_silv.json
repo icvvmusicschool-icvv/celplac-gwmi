@@ -1,0 +1,5 @@
+[{"NC":"Nível Territorial (Código)","NN":"Nível Territorial","V":"Valor","D1C":"Brasil (Código)","D1N":"Brasil","D2C":"Variável (Código)","D2N":"Variável","D3C":"Ano (Código)","D3N":"Ano","D4C":"Tipo de produto da silvicultura (Código)","D4N":"Tipo de produto da silvicultura"},
+{"NC":"1","NN":"Brasil","V":"45000000","D1C":"1","D1N":"Brasil","D2C":"1","D2N":"Quantidade produzida","D3C":"2023","D3N":"2023","D4C":"1","D4N":"Madeira em tora de pinus"},
+{"NC":"1","NN":"Brasil","V":"46100000","D1C":"1","D1N":"Brasil","D2C":"1","D2N":"Quantidade produzida","D3C":"2024","D3N":"2024","D4C":"1","D4N":"Madeira em tora de pinus"},
+{"NC":"1","NN":"Brasil","V":"...","D1C":"1","D1N":"Brasil","D2C":"1","D2N":"Quantidade produzida","D3C":"2022","D3N":"2022","D4C":"1","D4N":"Madeira em tora de pinus"},
+{"NC":"1","NN":"Brasil","V":"150000000","D1C":"1","D1N":"Brasil","D2C":"1","D2N":"Quantidade produzida","D3C":"2024","D3N":"2024","D4C":"2","D4N":"Madeira em tora de eucalipto"}]

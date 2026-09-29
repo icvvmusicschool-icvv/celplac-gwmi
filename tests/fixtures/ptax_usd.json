@@ -1,0 +1,5 @@
+{"@odata.context":"fixture","value":[
+{"paridadeCompra":1.0,"paridadeVenda":1.0,"cotacaoCompra":5.4000,"cotacaoVenda":5.4010,"dataHoraCotacao":"2025-01-02 10:08:00.000","tipoBoletim":"Abertura"},
+{"paridadeCompra":1.0,"paridadeVenda":1.0,"cotacaoCompra":5.4300,"cotacaoVenda":5.4310,"dataHoraCotacao":"2025-01-02 13:06:00.000","tipoBoletim":"Fechamento PTAX"},
+{"paridadeCompra":1.0,"paridadeVenda":1.0,"cotacaoCompra":5.3900,"cotacaoVenda":5.3910,"dataHoraCotacao":"2025-01-03 10:08:00.000","tipoBoletim":"Abertura"},
+{"paridadeCompra":1.0,"paridadeVenda":1.0,"cotacaoCompra":5.3800,"cotacaoVenda":5.3810,"dataHoraCotacao":"2025-01-03 13:06:00.000","tipoBoletim":"Fechamento PTAX"}]}

@@ -1,0 +1,4 @@
+{"elapsedTime":"fixture","count":3,"data":[
+{"period":"202501","reporterISO":"USA","partnerISO":"W00","cmdCode":"4412","flowCode":"M","primaryValue":410000000,"fobvalue":395000000,"netWgt":800000000,"qty":null},
+{"period":"202501","reporterISO":"USA","partnerISO":"BRA","cmdCode":"4412","flowCode":"M","primaryValue":17000000,"fobvalue":16000000,"netWgt":30000000,"qty":null},
+{"period":"202501","reporterISO":"USA","partnerISO":"W00","cmdCode":"4412","flowCode":"RX","primaryValue":1,"fobvalue":1,"netWgt":1,"qty":null}]}
