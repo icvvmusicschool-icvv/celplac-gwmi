@@ -1,0 +1,830 @@
+<title>CELPLAC Global Wood Market Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#ECEBE6;--surface:#F8F7F3;--surface2:#F0EEE8;--ink:#1B1E20;--ink2:#3A3F42;--muted:#676C69;--line:#D6D3CA;--line2:#E4E1DA;
+  --copper:#A65A2E;--forest:#2C5A43;--wood:#8A6843;--slate:#4A6474;
+  --pos:#2E7A4B;--neg:#B0392B;--warn:#A9760F;--info:#36668F;
+  --side:#1A1D1F;--side-ink:#CEC9BD;--side-mute:#81847F;--side-line:#2A2E31;--side-act:#D58A52;
+  --demo-bg:#F3E3BD;--demo-ink:#6B4A07;
+  --f-disp:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#121416;--surface:#1A1D20;--surface2:#202427;--ink:#EAE6DE;--ink2:#C8C4BC;--muted:#8D928E;--line:#2E3337;--line2:#262A2E;
+  --copper:#D4854F;--forest:#63A280;--wood:#C29D72;--slate:#809DB0;
+  --pos:#5DB47F;--neg:#E46D5B;--warn:#E2A83D;--info:#72A3D3;
+  --side:#0D0F11;--side-ink:#CEC9BD;--side-mute:#7A7D79;--side-line:#23272A;--side-act:#E09561;
+  --demo-bg:#3A2F17;--demo-ink:#F0CF86;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#121416;--surface:#1A1D20;--surface2:#202427;--ink:#EAE6DE;--ink2:#C8C4BC;--muted:#8D928E;--line:#2E3337;--line2:#262A2E;
+  --copper:#D4854F;--forest:#63A280;--wood:#C29D72;--slate:#809DB0;
+  --pos:#5DB47F;--neg:#E46D5B;--warn:#E2A83D;--info:#72A3D3;
+  --side:#0D0F11;--side-ink:#CEC9BD;--side-mute:#7A7D79;--side-line:#23272A;--side-act:#E09561;
+  --demo-bg:#3A2F17;--demo-ink:#F0CF86;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+a{color:var(--info)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.num,.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* shell */
+.app{display:grid;grid-template-columns:252px minmax(0,1fr);min-height:100%}
+.side{background:var(--side);color:var(--side-ink);position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--side-line);padding-bottom:24px}
+.brand{padding:18px 18px 14px;border-bottom:1px solid var(--side-line)}
+.brand .co{font-family:var(--f-disp);font-weight:700;letter-spacing:.22em;font-size:13px;color:var(--side-act)}
+.brand .nm{font-family:var(--f-disp);font-weight:600;font-size:21px;line-height:1.05;letter-spacing:.02em;color:#F1ECE2;margin-top:4px}
+.brand .sb{font-size:11px;color:var(--side-mute);margin-top:6px;line-height:1.35}
+.nav{padding:8px 0}
+.nav .grp{font-family:var(--f-disp);font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--side-mute);padding:14px 18px 4px}
+.nav a{display:flex;align-items:center;gap:10px;padding:6px 18px 6px 16px;color:var(--side-ink);text-decoration:none;font-size:13px;border-left:2px solid transparent}
+.nav a:hover{background:#ffffff0d}
+.nav a.on{border-left-color:var(--side-act);background:#ffffff12;color:#fff}
+.nav a .tag{margin-left:auto;font-size:9.5px;font-family:var(--f-mono);color:var(--side-mute);border:1px solid var(--side-line);padding:0 4px;border-radius:2px}
+.main{min-width:0;display:flex;flex-direction:column}
+.demo-band{background:var(--demo-bg);color:var(--demo-ink);font-size:12px;padding:6px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.demo-band b{font-family:var(--f-mono);letter-spacing:.08em}
+.top{display:flex;align-items:center;gap:14px;padding:10px 20px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+.top .crumb{font-size:12px;color:var(--muted);font-family:var(--f-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sp{flex:1}
+.top .asof{font-size:12px;color:var(--muted);font-family:var(--f-mono);white-space:nowrap}
+.burger{display:none;border:1px solid var(--line);background:var(--surface2);border-radius:3px;padding:4px 9px;cursor:pointer}
+.ticker{overflow:hidden;border-bottom:1px solid var(--line);background:var(--surface2)}
+.ticker .rail{display:flex;gap:28px;padding:7px 20px;white-space:nowrap;width:max-content;animation:tick 60s linear infinite}
+.ticker:hover .rail{animation-play-state:paused}
+.ticker span{font-family:var(--f-mono);font-size:12px}
+@keyframes tick{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.ticker .rail{animation:none}}
+.content{padding:22px 20px 60px;display:flex;flex-direction:column;gap:18px;max-width:1480px;width:100%}
+
+/* page header */
+.ph{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.ph h1{font-family:var(--f-disp);font-weight:700;font-size:clamp(28px,4vw,44px);line-height:.95;letter-spacing:.02em;margin:0;text-wrap:balance}
+.ph .kick{font-family:var(--f-disp);font-weight:600;font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--copper);margin-bottom:6px}
+.ph p{margin:6px 0 0;color:var(--muted);max-width:70ch}
+.ph .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* grid & panels */
+.g{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g-8-4{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.g-7-5{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:3px;min-width:0}
+.panel>.hd{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.panel>.hd h2{font-family:var(--f-disp);font-weight:600;font-size:15px;letter-spacing:.12em;text-transform:uppercase;margin:0}
+.panel>.hd .sub{font-size:12px;color:var(--muted)}
+.panel>.hd .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+.panel>.bd{padding:14px}
+.panel>.bd.flush{padding:0}
+.chip{display:inline-flex;align-items:center;gap:4px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.04em;padding:1px 6px;border-radius:2px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;line-height:1.5}
+.chip.demo{background:var(--demo-bg);color:var(--demo-ink);border-color:transparent;font-weight:500}
+.chip.pos{color:var(--pos);border-color:color-mix(in srgb,var(--pos) 40%,transparent)}
+.chip.neg{color:var(--neg);border-color:color-mix(in srgb,var(--neg) 40%,transparent)}
+.chip.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
+.chip.info{color:var(--info);border-color:color-mix(in srgb,var(--info) 40%,transparent)}
+.chip.solid-neg{background:var(--neg);color:#fff;border-color:transparent}
+.chip.solid-warn{background:var(--warn);color:#fff;border-color:transparent}
+.chip.solid-pos{background:var(--pos);color:#fff;border-color:transparent}
+.chip.solid-info{background:var(--info);color:#fff;border-color:transparent}
+.src{cursor:pointer;background:none;border:1px dashed var(--line);border-radius:2px;font-family:var(--f-mono);font-size:10.5px;color:var(--muted);padding:1px 6px;white-space:nowrap}
+.src:hover{color:var(--copper);border-color:var(--copper)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:4px 10px;font-size:12px;font-family:var(--f-mono);cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--ink);color:var(--surface)}
+select,input[type=text],input[type=search]{font:inherit;font-size:13px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:5px 8px}
+.up{color:var(--pos)}.dn{color:var(--neg)}.fl{color:var(--muted)}
+.arrow{font-family:var(--f-mono);font-weight:500}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.lbl{font-family:var(--f-disp);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
+
+/* status tiles */
+.status{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0;border:1px solid var(--line);background:var(--surface);border-radius:3px}
+.st{padding:12px 14px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);display:flex;flex-direction:column;gap:6px;min-width:0}
+.st .t{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;flex-wrap:wrap}
+.st .v{font-family:var(--f-disp);font-weight:600;font-size:22px;letter-spacing:.02em;line-height:1}
+.st .d{font-size:12px;color:var(--muted);line-height:1.35}
+.stripe{height:3px;border-radius:2px;background:var(--line)}
+
+/* pulse */
+.pulse{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0}
+.pi{padding:12px 14px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);display:grid;grid-template-columns:1fr auto;gap:4px 8px;min-width:0}
+.pi .k{font-family:var(--f-disp);font-weight:700;font-size:16px;letter-spacing:.08em}
+.pi .ar{font-size:20px;line-height:1;text-align:right}
+.pi .val{font-family:var(--f-mono);font-size:17px}
+.pi .ch{font-family:var(--f-mono);font-size:12px;text-align:right;align-self:end}
+.pi .meta{grid-column:1/-1;display:flex;gap:6px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+.pi svg{grid-column:1/-1;width:100%;height:30px}
+
+/* tables */
+.tw{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th{font-family:var(--f-disp);font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:11.5px;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface)}
+table.t td{padding:7px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
+table.t td.n,table.t th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.t tr:hover td{background:var(--surface2)}
+table.t tr.click{cursor:pointer}
+
+/* bars */
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:minmax(80px,140px) minmax(0,1fr) 72px 60px;gap:8px;align-items:center;font-size:12.5px}
+.bar .tr{height:12px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.bar .fi{height:100%;background:var(--copper)}
+.bar .v{font-family:var(--f-mono);text-align:right;font-size:12px}
+.bar .dd{font-family:var(--f-mono);text-align:right;font-size:11.5px}
+.bar .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.chart{width:100%;min-height:40px;position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{font-family:var(--f-mono);font-size:10.5px;fill:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:3px;margin-right:5px;vertical-align:middle}
+#tip{position:fixed;pointer-events:none;z-index:60;background:var(--ink);color:var(--surface);font-family:var(--f-mono);font-size:11.5px;padding:6px 8px;border-radius:3px;max-width:260px;line-height:1.45}
+
+/* list items */
+.li{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line2);align-items:flex-start}
+.li:last-child{border-bottom:0}
+.li .sev{width:4px;align-self:stretch;border-radius:2px;flex:none}
+.li .ti{font-weight:500}
+.li .mt{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center}
+
+/* epistemic tags */
+.ep{display:inline-block;font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;padding:0 5px;border-radius:2px;margin-right:6px;vertical-align:1px}
+.ep.fato{background:color-mix(in srgb,var(--forest) 18%,transparent);color:var(--forest)}
+.ep.ind{background:color-mix(in srgb,var(--slate) 18%,transparent);color:var(--slate)}
+.ep.ana{background:color-mix(in srgb,var(--info) 16%,transparent);color:var(--info)}
+.ep.hip{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.ep.imp{background:color-mix(in srgb,var(--copper) 18%,transparent);color:var(--copper)}
+
+.unavail{border:1px dashed var(--line);border-radius:3px;padding:18px;text-align:center;color:var(--muted);font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;background:repeating-linear-gradient(135deg,transparent 0 8px,color-mix(in srgb,var(--line) 35%,transparent) 8px 9px)}
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chain .n{border:1px solid var(--line);background:var(--surface2);padding:5px 10px;border-radius:2px;font-family:var(--f-disp);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+.chain .a{color:var(--muted);font-family:var(--f-mono)}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:#0006;z-index:70}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--surface);border-left:1px solid var(--line);z-index:80;padding:calc(18px + env(safe-area-inset-top,0px)) 20px 20px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.drawer h3{font-family:var(--f-disp);font-size:22px;margin:0;letter-spacing:.03em}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:8px 12px;font-size:13px}
+.kv dt{color:var(--muted);font-family:var(--f-disp);letter-spacing:.1em;text-transform:uppercase;font-size:12px;padding-top:1px}
+.kv dd{margin:0;word-break:break-word}
+.x{align-self:flex-end;border:1px solid var(--line);background:var(--surface2);border-radius:3px;padding:3px 10px;cursor:pointer}
+
+/* blueprint */
+pre.tree{font-family:var(--f-mono);font-size:12px;line-height:1.55;background:var(--surface2);border:1px solid var(--line2);padding:14px;border-radius:3px;overflow-x:auto;margin:0;color:var(--ink2)}
+.pipe{display:flex;flex-wrap:wrap;gap:0;align-items:stretch}
+.pipe .s{flex:1 1 110px;border:1px solid var(--line);margin:-1px 0 0 -1px;padding:10px;background:var(--surface)}
+.pipe .s b{font-family:var(--f-disp);letter-spacing:.1em;font-size:14px;display:block}
+.pipe .s span{font-size:11.5px;color:var(--muted)}
+.pipe .s i{font-style:normal;font-family:var(--f-mono);font-size:10.5px;color:var(--copper)}
+.phase{display:grid;grid-template-columns:70px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2)}
+.phase .p{font-family:var(--f-disp);font-weight:700;font-size:22px;color:var(--copper)}
+.prose{max-width:74ch}
+.prose h3{font-family:var(--f-disp);letter-spacing:.06em;font-size:19px;margin:22px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.prose p{margin:6px 0}
+.range{display:grid;grid-template-columns:minmax(120px,190px) 1fr 44px;gap:10px;align-items:center;font-size:13px}
+.range input{width:100%;accent-color:var(--copper)}
+.qa{border:1px solid var(--line);border-radius:3px;padding:12px 14px;background:var(--surface2)}
+.pill-row{display:flex;gap:6px;flex-wrap:wrap}
+.pill-row button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:3px 10px;font-size:12px;cursor:pointer}
+.pill-row button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.map text{font-size:12px}
+
+@media (max-width:1100px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.g-8-4,.g-7-5{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:820px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:fixed;left:0;top:0;bottom:0;width:272px;z-index:90;transform:translateX(-100%);transition:transform .2s ease;padding-top:env(safe-area-inset-top,0px)}
+  .side.open{transform:none}
+  .burger{display:inline-block}
+  .g2,.g3,.g4{grid-template-columns:minmax(0,1fr)}
+  .content{padding:16px 16px 60px}
+  .top,.demo-band{padding-inline:16px}
+  .bar{grid-template-columns:minmax(70px,100px) minmax(0,1fr) 62px 52px}
+  .top .asof{display:none}
+  .map text{display:none}
+}
+@media (prefers-reduced-motion:reduce){.side{transition:none}}
+</style>
+
+<div class="app">
+  <aside class="side" id="side" aria-label="Navegação">
+    <div class="brand">
+      <div class="co">CELPLAC</div>
+      <div class="nm">Global Wood Market Intelligence</div>
+      <div class="sb">Global Intelligence — Wood, Plywood, Veneers &amp; Engineered Wood</div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+  <div class="main">
+    <div class="demo-band" role="note"><b>SIMULATED DATA</b><span>Versão 0.1 · Fase 1 — todos os números desta plataforma são demonstrativos (DEMO). As fontes indicadas são as fontes <em>previstas</em> para integração, não a origem dos valores exibidos.</span></div>
+    <div class="top">
+      <button class="burger" id="burger" aria-label="Abrir menu">☰</button>
+      <div class="crumb" id="crumb"></div>
+      <div class="sp"></div>
+      <div class="asof">Snapshot DEMO · referência ago/2026 · gerado 23/09/2026</div>
+    </div>
+    <div class="ticker" aria-hidden="true"><div class="rail" id="ticker"></div></div>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+<div id="tip" hidden></div>
+<div id="drawerWrap" hidden><div class="scrim" id="scrim"></div><aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Rastreabilidade do dado"></aside></div>
+
+<script>
+(function(){
+"use strict";
+/* ============ utilities ============ */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var R=mulberry32(20260923);
+var N=120; // meses
+var MN=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+var LABELS=[];(function(){var y=2016,m=8;for(var i=0;i<N;i++){LABELS.push(MN[m]+'/'+String(y).slice(2));m++;if(m>11){m=0;y++}}})(); // set/16 .. ago/26
+function gen(start,drift,vol,seas){var v=start,o=[];for(var i=0;i<N;i++){v=v*(1+drift+(R()-.5)*vol);o.push(v*(1+(seas||0)*Math.sin(i/12*2*Math.PI)))}return o}
+function endWith(a,c){a[a.length-1]=a[a.length-2]*(1+c);return a}
+function last(a){return a[a.length-1]}
+function chg(a,k){k=k||1;return a[a.length-1]/a[a.length-1-k]-1}
+function mean(a){return a.reduce(function(s,x){return s+x},0)/a.length}
+function sd(a){var m=mean(a);return Math.sqrt(mean(a.map(function(x){return(x-m)*(x-m)})))}
+function fmt(n,d){if(n==null||isNaN(n))return'—';return n.toLocaleString('pt-BR',{minimumFractionDigits:d||0,maximumFractionDigits:d||0})}
+function pct(n,d){if(n==null||isNaN(n))return'—';var s=(n*100).toFixed(d==null?1:d).replace('.',',');return(n>0?'+':'')+s+'%'}
+function pp(n){return(n>0?'+':'')+(n*100).toFixed(1).replace('.',',')+' p.p.'}
+function trend(c,th){th=th||.005;return c>th?'↑':c<-th?'↓':'→'}
+function tcls(c,pol,th){th=th||.005;if(Math.abs(c)<=th)return'fl';var g=(pol||1)*c>0;return g?'up':'dn'}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function hash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0)/4294967296}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+
+/* ============ sources (fontes previstas — reais) ============ */
+var SRC={
+ comex:{n:'Comex Stat — MDIC/SECEX',u:'https://comexstat.mdic.gov.br',p:'Mensal',c:'Exportações e importações brasileiras por NCM, país, UF, via e URF (porto)',t:'Oficial — Brasil',m:'Registros aduaneiros; valor FOB (US$), peso líquido (kg) e quantidade estatística'},
+ ibge:{n:'IBGE — PEVS (Produção da Extração Vegetal e da Silvicultura) e PIM-PF',u:'https://www.ibge.gov.br',p:'Anual (PEVS) · Mensal (PIM-PF)',c:'Produção florestal por espécie/produto e UF; produção industrial',t:'Oficial — Brasil',m:'Levantamento municipal (PEVS); pesquisa industrial amostral (PIM-PF)'},
+ snif:{n:'SNIF — Serviço Florestal Brasileiro',u:'https://snif.florestal.gov.br',p:'Anual / irregular',c:'Florestas plantadas, produção e comércio florestal',t:'Oficial — Brasil',m:'Compilação de bases oficiais e setoriais'},
+ bcb:{n:'Banco Central do Brasil — PTAX / SGS',u:'https://www.bcb.gov.br',p:'Diária',c:'Taxas de câmbio, juros, séries macro',t:'Oficial — Brasil',m:'PTAX: média de consultas a dealers'},
+ fao:{n:'FAOSTAT — Forestry Production and Trade',u:'https://www.fao.org/faostat',p:'Anual',c:'Produção, comércio e consumo aparente de produtos florestais por país',t:'Organismo internacional',m:'Questionário conjunto FAO/ITTO/UNECE/Eurostat; estimativas FAO quando ausente'},
+ comtrade:{n:'UN Comtrade',u:'https://comtradeplus.un.org',p:'Mensal / anual',c:'Comércio bilateral por código SH, todos os países reportantes',t:'Organismo internacional',m:'Dados declarados pelos países; espelhamento quando ausente'},
+ itto:{n:'ITTO — Market Information Service',u:'https://www.itto.int',p:'Quinzenal',c:'Preços e notícias de madeira tropical e compensado',t:'Organismo internacional',m:'Cotações reportadas por correspondentes de mercado'},
+ iba:{n:'Ibá — Indústria Brasileira de Árvores',u:'https://iba.org',p:'Anual / periódica',c:'Florestas plantadas, painéis, pinus e eucalipto',t:'Entidade setorial',m:'Dados de associadas + fontes oficiais'},
+ abimci:{n:'ABIMCI — Assoc. Bras. da Ind. de Madeira Processada Mecanicamente',u:'https://abimci.com.br',p:'Periódica',c:'Compensados, lâminas, serrados',t:'Entidade setorial',m:'Estudos setoriais'},
+ anfir:{n:'ANFIR — Implementos Rodoviários',u:'https://www.anfir.org.br',p:'Mensal',c:'Emplacamentos de implementos rodoviários',t:'Entidade setorial',m:'Registros de emplacamento'},
+ fred:{n:'FRED — Federal Reserve Bank of St. Louis',u:'https://fred.stlouisfed.org',p:'Mensal',c:'Housing starts, produção industrial, juros EUA',t:'Oficial — EUA (agregador)',m:'Redistribui séries do Census, BLS, Fed'},
+ census:{n:'U.S. Census Bureau — Construction / Trade',u:'https://www.census.gov',p:'Mensal',c:'Construção e importações dos EUA',t:'Oficial — EUA',m:'Pesquisas estatísticas oficiais'},
+ usitc:{n:'USITC DataWeb',u:'https://dataweb.usitc.gov',p:'Mensal',c:'Importações dos EUA por HTS e país',t:'Oficial — EUA',m:'Dados aduaneiros (Census) por HTS'},
+ eurostat:{n:'Eurostat — Comext / Construction',u:'https://ec.europa.eu/eurostat',p:'Mensal',c:'Comércio e construção na UE',t:'Oficial — UE',m:'Estatísticas harmonizadas dos Estados-membros'},
+ nbs:{n:'National Bureau of Statistics of China',u:'https://www.stats.gov.cn',p:'Mensal',c:'Atividade, construção, produção industrial',t:'Oficial — China',m:'Estatísticas oficiais'},
+ inegi:{n:'INEGI — México',u:'https://www.inegi.org.mx',p:'Mensal',c:'Construção, atividade, comércio',t:'Oficial — México',m:'Estatísticas oficiais'},
+ wb:{n:'World Bank — Open Data / Pink Sheet',u:'https://data.worldbank.org',p:'Mensal / anual',c:'Macro global e preços de commodities',t:'Organismo internacional',m:'Compilação de fontes nacionais'},
+ imf:{n:'IMF Data',u:'https://www.imf.org/en/Data',p:'Trimestral / semestral',c:'PIB, inflação, projeções (WEO)',t:'Organismo internacional',m:'Estatísticas e projeções do FMI'},
+ eia:{n:'U.S. EIA — Petroleum Prices',u:'https://www.eia.gov',p:'Diária',c:'Brent, WTI, combustíveis',t:'Oficial — EUA',m:'Cotações spot'},
+ drewry:{n:'Drewry World Container Index',u:'https://www.drewry.co.uk',p:'Semanal',c:'Frete spot de contêiner em rotas principais',t:'Especializada — logística (termos de uso a verificar)',m:'Cotações de mercado spot'},
+ fbx:{n:'Freightos Baltic Index (FBX)',u:'https://fbx.freightos.com',p:'Diária / semanal',c:'Frete de contêiner por rota',t:'Especializada — logística (licença a verificar)',m:'Índice de preços spot'},
+ antaq:{n:'ANTAQ — Estatístico Aquaviário',u:'https://www.gov.br/antaq',p:'Mensal',c:'Movimentação nos portos brasileiros',t:'Oficial — Brasil',m:'Declarações de terminais'},
+ news:{n:'Feeds jornalísticos licenciados (a definir)',u:'—',p:'Contínua',c:'Notícias de mercado, comércio, logística e geopolítica',t:'Jornalística',m:'Curadoria + classificação pelo News Impact Engine'},
+ internal:{n:'ERP CELPLAC (integração futura — Fase 5)',u:'—',p:'Diária',c:'Vendas, exportações, clientes, produtos, preços, margem, estoque',t:'Interna',m:'Integração via API/ETL'}
+};
+function srcBtn(k,ctx){var nm=SRC[k].n.split(' — ')[0].split(' (')[0];if(nm.length>18)nm=nm.slice(0,17)+'…';return '<button class="src" data-src="'+k+'" data-ctx="'+esc(ctx||'')+'" title="De onde veio este número? — '+esc(SRC[k].n)+'">ⓘ '+esc(nm)+'</button>'}
+var DEMO='<span class="chip demo">DEMO</span>';
+
+/* ============ demo datasets ============ */
+var PULSE=[
+ {k:'WOOD',l:'Wood Price Index',u:'pts',s:endWith(gen(100,.0015,.03,.01),.021),pol:1,src:'itto',d:1},
+ {k:'PLYWOOD',l:'Compensado BR — preço médio FOB',u:'US$/m³',s:endWith(gen(355,.0012,.035,.015),.017),pol:1,src:'comex',d:0},
+ {k:'VENEER',l:'Veneer Price Index',u:'pts',s:endWith(gen(100,.001,.025),.002),pol:1,src:'itto',d:1},
+ {k:'CONSTRUCTION',l:'Construção — índice composto',u:'pts',s:endWith(gen(100,.0012,.02,.02),.012),pol:1,src:'fred',d:1},
+ {k:'TRUCKING',l:'Implementos rodoviários — emplacamentos',u:'un./mês',s:endWith(gen(9800,.003,.08,.05),-.034),pol:1,src:'anfir',d:0},
+ {k:'SHIPPING',l:'Frete contêiner — índice',u:'US$/FEU',s:endWith(gen(1600,.004,.09),-.041),pol:-1,src:'drewry',d:0},
+ {k:'USD/BRL',l:'Dólar comercial (PTAX)',u:'R$',s:endWith(gen(3.25,.0045,.035),.013),pol:1,src:'bcb',d:3},
+ {k:'CHINA',l:'China — importações de madeira',u:'US$ bi',s:endWith(gen(1.6,.001,.06,.04),.001),pol:1,src:'comtrade',d:2},
+ {k:'USA',l:'EUA — housing starts',u:'mil/ano',s:endWith(gen(1180,.002,.05),-.027),pol:1,src:'fred',d:0},
+ {k:'EUROPE',l:'UE — importações de compensados',u:'mil m³',s:endWith(gen(620,.0015,.05,.03),.018),pol:1,src:'eurostat',d:0}
+];
+var P={};PULSE.forEach(function(p){P[p.k]=p});
+
+var DEST=[ // US$ milhões (12m) — DEMO
+ ['US','Estados Unidos','América do Norte',182,214,-98,38,'Houston / Savannah'],
+ ['MX','México','América do Norte',64,49,-102,23,'Veracruz / Manzanillo'],
+ ['DE','Alemanha','Europa',38,33,10,51,'Hamburgo'],
+ ['BE','Bélgica','Europa',31,27,4.5,50.8,'Antuérpia'],
+ ['GB','Reino Unido','Europa',29,28,-2,53,'Felixstowe'],
+ ['NL','Países Baixos','Europa',22,19,5,52.3,'Roterdã'],
+ ['AR','Argentina','América do Sul',21,24,-64,-34,'Buenos Aires / rodoviário'],
+ ['DO','Rep. Dominicana','Caribe',18,15,-70,19,'Caucedo'],
+ ['SA','Arábia Saudita','Oriente Médio',16,11,45,24,'Jeddah / Dammam'],
+ ['FR','França','Europa',15,14,2,47,'Le Havre'],
+ ['CL','Chile','América do Sul',14,15,-71,-33,'San Antonio'],
+ ['PY','Paraguai','América do Sul',12,11,-58,-23,'rodoviário'],
+ ['UY','Uruguai','América do Sul',11,11,-56,-33,'Montevidéu / rodoviário'],
+ ['CN','China','Ásia',10,17,104,33,'Xangai'],
+ ['PE','Peru','América do Sul',9,8,-75,-10,'Callao'],
+ ['IN','Índia','Ásia',8,5,79,22,'Nhava Sheva'],
+ ['CO','Colômbia','América do Sul',7,6,-74,4,'Cartagena'],
+ ['ES','Espanha','Europa',7,7,-4,40,'Valência'],
+ ['CA','Canadá','América do Norte',6,5,-100,56,'Montreal'],
+ ['PL','Polônia','Europa',6,4,19,52,'Gdansk'],
+ ['IT','Itália','Europa',5,6,12,43,'Gênova'],
+ ['MA','Marrocos','África',5,1.2,-7,32,'Casablanca'],
+ ['VN','Vietnã','Ásia',4,.6,106,16,'Hai Phong'],
+ ['ZA','África do Sul','África',4,4,25,-29,'Durban']
+].map(function(r,i){var price=330+hash(r[0]+'p')*190;return{c:r[0],n:r[1],reg:r[2],v:r[3],v0:r[4],lon:r[5],lat:r[6],port:r[7],price:price,vol:r[3]*1e6/price/1000,t:r[3]*1e6/price*0.55/1000}});
+(function(){var T=0,T0=0;DEST.forEach(function(d){T+=d.v;T0+=d.v0});DEST.forEach(function(d){d.sh=d.v/T;d.sh0=d.v0/T0;d.var=d.v/d.v0-1;d.dsh=d.sh-d.sh0;d.isNew=d.v0<2});DEST.sort(function(a,b){return b.v-a.v});DEST.total=T;DEST.total0=T0})();
+
+var PORTS=[['Paranaguá (PR)',-48.5,-25.5,.38],['Itajaí/Itapoá (SC)',-48.7,-26.9,.29],['São Francisco do Sul (SC)',-48.6,-26.2,.14],['Rio Grande (RS)',-52.1,-32,.11],['Santos (SP)',-46.3,-23.9,.08]];
+
+var COMP=[ // exportadores globais de compensado — DEMO (US$ bi)
+ ['China',7.8,.031,318,'EUA, Japão, Oriente Médio'],['Indonésia',1.9,-.022,540,'Japão, Coreia, EUA'],['Brasil',1.25,.046,372,'EUA, México, Europa'],['Vietnã',1.1,.084,305,'EUA, Coreia, Japão'],
+ ['Rússia',.95,-.12,610,'China, Turquia (restrições UE/EUA)'],['Malásia',.88,-.035,560,'Japão, Oriente Médio'],['Finlândia',.8,.012,890,'Europa'],['Chile',.52,.021,356,'EUA, México, América Latina'],
+ ['Canadá',.41,-.015,640,'EUA'],['Estados Unidos',.39,-.008,720,'Canadá, México'],['Uruguai',.12,.067,410,'EUA, Europa'],['Paraguai',.08,.052,390,'Argentina, Brasil']
+].map(function(r){return{n:r[0],v:r[1],g:r[2],pr:r[3],dest:r[4]}});
+(function(){var T=COMP.reduce(function(s,c){return s+c.v},0);COMP.forEach(function(c){c.sh=c.v/T})})();
+
+var PRODUCTS={
+ timber:{t:'TIMBER MARKET',k:'Madeira em tora e serrada',u:'mi m³',base:3900,src:'fao',
+  segs:[['Tora conífera (pinus e outras)',1250,.012,58],['Tora não conífera',720,-.006,71],['Tora de eucalipto',410,.028,49],['Serrada conífera',335,.009,212],['Serrada tropical',62,-.024,420]],
+  prod:[['EUA',452],['Índia',350],['China',335],['Brasil',285],['Rússia',210],['Canadá',140],['Indonésia',120],['Suécia',75]],
+  buy:[['China',48],['Áustria',11],['Alemanha',9],['Suécia',8],['Finlândia',7],['Índia',6]],
+  sup:[['Nova Zelândia',22],['Rússia',16],['EUA',12],['Alemanha',10],['República Tcheca',8],['Brasil',3]]},
+ veneer:{t:'VENEER MARKET',k:'Lâminas de madeira',u:'mi m³',base:14,src:'fao',
+  segs:[['Veneer (total)',14.2,.011,610],['Rotary veneer',11.6,.015,520],['Sliced veneer',1.4,-.018,1850],['Plywood veneer',9.8,.017,480]],
+  prod:[['China',5.1],['Vietnã',1.9],['Indonésia',1.2],['Brasil',1.0],['Rússia',.8],['Índia',.7],['Gabão',.5],['EUA',.5]],
+  buy:[['China',1.4],['Índia',.9],['Coreia do Sul',.5],['Vietnã',.4],['Alemanha',.3],['Itália',.3]],
+  sup:[['Vietnã',1.1],['Gabão',.5],['Brasil',.4],['Rússia',.35],['Camarões',.2],['Uruguai',.18]],
+  species:[['Pinus',28],['Eucalipto',24],['Birch/bétula',14],['Poplar/álamo',12],['Okoumé',9],['Tropicais mistas',13]]},
+ plywood:{t:'GLOBAL PLYWOOD MARKET',k:'Compensados',u:'mi m³',base:160,src:'fao',
+  segs:[['Plywood (total)',161,.009,410],['Tropical plywood',14,-.021,560],['Softwood plywood',42,.014,385],['Hardwood plywood',105,.008,395],['Marine plywood',3.1,.018,980],['Film faced plywood',9.4,.022,640],['Phenolic plywood',6.2,.019,610],['Structural plywood',22,.006,450]],
+  prod:[['China',118],['Indonésia',4.1],['EUA',8.4],['Rússia',4.0],['Índia',3.6],['Brasil',3.1],['Malásia',1.9],['Vietnã',3.2]],
+  buy:[['EUA',5.2],['Japão',2.4],['Coreia do Sul',1.6],['Alemanha',1.2],['Reino Unido',1.1],['México',.9]],
+  sup:[['China',11.8],['Indonésia',2.5],['Vietnã',2.3],['Brasil',2.1],['Rússia',1.5],['Malásia',1.2]]},
+ panels:{t:'PANELS MARKET',k:'Painéis de madeira',u:'mi m³',base:410,src:'fao',
+  segs:[['Compensado',161,.009,410],['MDF / HDF',112,.016,300],['Aglomerado / PB',98,.004,240],['OSB',38,.021,330],['LVL',4.2,.038,540]],
+  prod:[['China',210],['EUA',48],['Rússia',19],['Alemanha',14],['Brasil',12],['Polônia',11],['Canadá',10],['Turquia',9]],
+  buy:[['EUA',14],['Japão',6],['Alemanha',5],['Coreia do Sul',4],['Reino Unido',4],['México',3]],
+  sup:[['China',22],['Canadá',6],['Rússia',5],['Alemanha',4],['Brasil',3],['Tailândia',3]]}
+};
+Object.keys(PRODUCTS).forEach(function(k,i){var p=PRODUCTS[k];p.sProd=gen(p.base,.0009,.02,.015);p.sCons=p.sProd.map(function(v,j){return v*(0.985+0.03*Math.sin(j/17+i))});p.sPrice=gen(100,.0012,.03);p.sExp=gen(p.base*.18,.0012,.04,.02);p.sImp=p.sExp.map(function(v){return v*(0.97+R()*.06)})});
+
+var SPECIES=[
+ {g:'PINUS',d:'Pinus taeda / elliottii — base de lâminas e compensado de coníferas no Sul do Brasil',av:'MÉDIA',rows:[['Produção (tora, mi m³)',48.2,.018],['Preço tora (R$/m³)',132,.041],['Exportação (US$ mi)',1640,.036],['Importação (US$ mi)',38,-.05],['Demanda (índice)',104,.012]],s:gen(100,.0015,.03)},
+ {g:'EUCALYPTUS',d:'Eucalyptus spp. — celulose, painéis, lâminas e LVL; forte expansão de plantios',av:'ALTA',rows:[['Produção (tora, mi m³)',182,.024],['Preço tora (R$/m³)',98,.022],['Exportação (US$ mi)',410,.061],['Importação (US$ mi)',6,.0],['Demanda (índice)',109,.019]],s:gen(100,.0025,.025)},
+ {g:'TROPICAL WOODS',d:'Madeiras tropicais nativas — sujeitas a manejo, rastreabilidade e regulações de origem',av:'BAIXA',rows:[['Produção (tora, mi m³)',11.4,-.031],['Preço (US$/m³)',470,.012],['Exportação (US$ mi)',380,-.044],['Importação (US$ mi)',12,.01],['Demanda (índice)',93,-.018]],s:gen(100,-.0008,.035)},
+ {g:'OUTRAS RELEVANTES',d:'Birch (bétula), poplar, okoumé — concorrem com pinus/eucalipto em lâminas e compensados',av:'MÉDIA',rows:[['Oferta global (índice)',96,-.022],['Preço birch plywood (índice)',121,.034],['Exportação mundial (US$ bi)',3.2,-.015],['Importação mundial (US$ bi)',3.1,-.012],['Demanda (índice)',101,.004]],s:gen(100,.001,.03)}
+];
+
+var PRICES=[
+ ['Tora de pinus (serraria)','R$/m³',132,127,118,'iba'],['Tora de eucalipto','R$/m³',98,97,91,'iba'],['Lâmina de pinus (miolo)','US$/m³',265,259,248,'itto'],
+ ['Compensado pinus — FOB exportação','US$/m³',372,366,351,'comex'],['Compensado fenólico / plastificado','US$/m³',612,604,575,'comex'],['Compensado tropical — FOB','US$/m³',540,548,530,'itto'],
+ ['Resina fenólica','R$/kg',9.8,9.6,8.9,'internal'],['Resina ureia-formol','R$/kg',4.4,4.5,4.2,'internal'],['Energia elétrica industrial','R$/MWh',512,505,470,'internal'],
+ ['Frete contêiner BR → EUA (costa leste)','US$/FEU',2350,2470,2610,'drewry'],['Frete contêiner BR → N. Europa','US$/FEU',2100,2180,2320,'drewry'],['Petróleo Brent','US$/bbl',71.2,69.8,78.5,'eia'],['USD/BRL','R$',last(P['USD/BRL'].s),P['USD/BRL'].s[N-2],mean(P['USD/BRL'].s.slice(-60)),'bcb']
+];
+
+var FX=[['USD/BRL',P['USD/BRL'].s,'bcb'],['EUR/BRL',gen(3.6,.0042,.035),'bcb'],['CNY/BRL',gen(.49,.0038,.03),'bcb'],['MXN/BRL',gen(.17,.004,.04),'bcb'],['ARS/BRL (×100)',gen(21,-.018,.06),'bcb'],['GBP/BRL',gen(4.1,.0036,.035),'bcb']];
+
+var MACRO={cols:['Juros (%)','Inflação (% a/a)','PIB (% a/a)','Prod. ind. (% a/a)','Desemprego (%)','Construção (% a/a)','Confiança (pts)'],
+ rows:[['Brasil',[14.25,5.1,2.1,1.4,6.2,2.8,93]],['EUA',[4.25,2.8,1.8,.9,4.3,-2.4,96]],['China',[3.0,.4,4.6,5.2,5.1,-5.8,89]],['Zona do Euro',[2.0,2.1,1.1,.6,6.2,1.9,97]],['México',[8.0,3.9,1.0,.4,2.7,3.6,99]],['Argentina',[35,38,4.2,3.1,7.4,5.9,91]],['Chile',[4.75,4.1,2.4,1.8,8.6,2.2,94]]],
+ good:[-1,-1,1,1,-1,1,1],src:['bcb','imf','imf','ibge','imf','census','wb']};
+
+var EVENTS=[
+ {id:'E1',cat:'TARIFFS',t:'Revisão de tarifas de importação sobre painéis de madeira no mercado norte-americano',dt:'2026-09-15',c:'Estados Unidos',prod:'Compensado (NCM 4412.39, 4412.34)',route:'Paranaguá/Itajaí → Houston/Savannah',imp:'ALTO',conf:'MÉDIA',ev:'Consulta pública aberta; alíquota final não publicada',cls:'direto'},
+ {id:'E2',cat:'SHIPPING',t:'Desvio de rotas em corredor marítimo Ásia–Europa eleva tempos de trânsito',dt:'2026-09-10',c:'Europa / Ásia',prod:'Todos (contêiner)',route:'Ásia → Europa (efeito indireto em disponibilidade de contêiner no Atlântico Sul)',imp:'MÉDIO',conf:'BAIXA',ev:'Relatos de armadores; sem dado de frete BR→Europa confirmando',cls:'indireto'},
+ {id:'E3',cat:'CHINA',t:'Desaceleração da construção residencial chinesa reduz demanda doméstica por painéis',dt:'2026-09-08',c:'China',prod:'Compensado, MDF (concorrência em terceiros mercados)',route:'China → EUA / Oriente Médio',imp:'MÉDIO',conf:'MÉDIA',ev:'Indicador de construção em queda 6 meses consecutivos (DEMO)',cls:'indireto'},
+ {id:'E4',cat:'EUROPE',t:'Regulação da UE sobre produtos livres de desmatamento (EUDR) — cronograma de aplicação em monitoramento',dt:'2026-09-02',c:'União Europeia',prod:'Madeira tropical, compensado, lâminas',route:'BR → portos UE',imp:'ALTO',conf:'MÉDIA',ev:'Regulação existente; datas e exigências vigentes devem ser verificadas na fonte oficial',cls:'monitor'},
+ {id:'E5',cat:'SANCTIONS',t:'Restrições a madeira de origem russa/bielorrussa mantêm realocação de oferta de birch plywood',dt:'2026-08-28',c:'Europa / EUA',prod:'Compensado de bétula (substituição por pinus/eucalipto)',route:'—',imp:'MÉDIO',conf:'MÉDIA',ev:'Participação russa em importações UE em queda (DEMO)',cls:'direto'},
+ {id:'E6',cat:'BRAZIL',t:'Alteração em regime de incentivo à exportação de manufaturados',dt:'2026-08-21',c:'Brasil',prod:'Todos os exportados',route:'—',imp:'BAIXO',conf:'BAIXA',ev:'Proposta em discussão; texto não publicado',cls:'monitor'},
+ {id:'E7',cat:'ENERGY',t:'Volatilidade do Brent pressiona custo de bunker e sobretaxas de combustível (BAF)',dt:'2026-08-19',c:'Global',prod:'Todos (frete)',route:'Todas as rotas marítimas',imp:'BAIXO',conf:'MÉDIA',ev:'Brent +2,0% m/m (DEMO)',cls:'indireto'},
+ {id:'E8',cat:'TRADE WAR',t:'Escalada tarifária EUA–China redireciona exportações chinesas de compensado para outros mercados',dt:'2026-08-12',c:'EUA / China / América Latina',prod:'Compensado',route:'China → México, Oriente Médio',imp:'MÉDIO',conf:'BAIXA',ev:'Correlação observada em dados DEMO; causalidade não estabelecida',cls:'indireto'},
+ {id:'E9',cat:'USA',t:'Queda de housing starts por três meses consecutivos',dt:'2026-08-18',c:'Estados Unidos',prod:'Compensado estrutural, pinus',route:'BR → EUA',imp:'MÉDIO',conf:'ALTA',ev:'Série oficial (DEMO nesta versão)',cls:'direto'},
+ {id:'E10',cat:'CONFLICTS',t:'Tensão regional eleva prêmio de seguro marítimo em rota do Oriente Médio',dt:'2026-07-30',c:'Oriente Médio',prod:'Todos (contêiner)',route:'BR → Jeddah / Dammam',imp:'BAIXO',conf:'BAIXA',ev:'Relatos de mercado; sem série de prêmio integrada',cls:'monitor'},
+ {id:'E11',cat:'TARIFFS',t:'Mercosul — revisão da Tarifa Externa Comum para capítulo 44',dt:'2026-07-22',c:'Mercosul',prod:'Madeira e painéis (cap. 44)',route:'BR → AR/PY/UY',imp:'BAIXO',conf:'BAIXA',ev:'Pauta de reunião técnica; sem decisão',cls:'monitor'}
+];
+var CATS=['TRADE WAR','TARIFFS','SANCTIONS','CONFLICTS','SHIPPING','ENERGY','CHINA','USA','EUROPE','BRAZIL'];
+
+var NEWS=[
+ ['2026-09-19','Madeira','Estados Unidos','Importadores americanos antecipam compras de compensado diante de revisão tarifária','Compensado pinus','direto','ALTO'],
+ ['2026-09-18','Logística','Brasil','Terminal de contêineres no Sul amplia janela de atracação','Todos','indireto','MÉDIO'],
+ ['2026-09-17','Compensados','México','Construção comercial mexicana sustenta demanda por fôrmas fenólicas','Compensado fenólico','direto','MÉDIO'],
+ ['2026-09-16','Silvicultura','Brasil','Novos plantios de eucalipto ampliam base florestal em MS e PR','Eucalipto, LVL','contexto','BAIXO'],
+ ['2026-09-15','Tarifas','Estados Unidos','Consulta pública sobre tarifas de painéis recebe contribuições','Compensado','direto','ALTO'],
+ ['2026-09-12','Caminhões','Brasil','Emplacamentos de implementos rodoviários recuam no mês','Assoalho de implementos','direto','MÉDIO'],
+ ['2026-09-11','Energia','Global','Petróleo oscila com revisão de oferta','Frete','indireto','BAIXO'],
+ ['2026-09-10','Geopolítica','Europa / Ásia','Desvio de rotas marítimas Ásia–Europa persiste','Contêiner','indireto','MÉDIO'],
+ ['2026-09-09','Painéis','China','Produção de painéis na China cai pelo terceiro mês','Compensado, MDF','contexto','MÉDIO'],
+ ['2026-09-05','Europa','União Europeia','Operadores europeus reforçam due diligence de origem florestal','Madeira, compensado','monitor','ALTO'],
+ ['2026-09-03','Construção','Estados Unidos','Licenças de construção residencial recuam','Compensado estrutural','indireto','MÉDIO'],
+ ['2026-09-01','Comércio exterior','Brasil','Exportações de manufaturados de madeira sobem no acumulado do ano','Compensado, lâminas','contexto','BAIXO']
+].map(function(r,i){return{dt:r[0],cat:r[1],c:r[2],t:r[3],prod:r[4],cls:r[5],imp:r[6],id:'N'+(i+1)}});
+var CLS={direto:['IMPACTO DIRETO','neg'],indireto:['IMPACTO INDIRETO','warn'],contexto:['CONTEXTO','info'],monitor:['MONITORAMENTO','']};
+
+var ALERTS=[
+ ['neg','TARIFA','Revisão tarifária em curso sobre compensado nos EUA — principal destino (27% das exportações DEMO).','E1'],
+ ['warn','LOGÍSTICA','Frete BR → N. Europa acima da média 5 anos em rota alternativa; índice geral em queda.',''],
+ ['yel','DEMANDA','EUA: importações de compensado −3,1% m/m e housing starts em queda por 3 meses.','E9'],
+ ['pos','OPORTUNIDADE','México: importações +8,2% a/a, participação do Brasil +4,6 p.p., concorrência asiática estável.',''],
+ ['info','GEOPOLÍTICA','Regulação de origem florestal da UE (EUDR): acompanhar exigências de rastreabilidade.','E4']
+];
+var ALC={neg:'var(--neg)',warn:'var(--copper)',yel:'var(--warn)',pos:'var(--pos)',info:'var(--info)'};
+
+/* Early warning: estado dos componentes por mercado (DEMO) */
+var EW={
+ rules:[
+  {n:'SINAL DE PRESSÃO DE MERCADO',c:['Exportações BR ↓','Importações do destino ↓','Preço ↓','Frete ↑'],tone:'neg'},
+  {n:'SINAL DE EXPANSÃO DA DEMANDA',c:['Construção ↑','Produção industrial ↑','Importações ↑','Frete estável'],tone:'pos'},
+  {n:'SINAL DE PRESSÃO DE CUSTO',c:['Resina ↑','Energia ↑','Tora ↑','Câmbio ↓'],tone:'warn'}
+ ],
+ m:{'Estados Unidos':[[1,1,0,1],[0,0,0,1],[1,0,1,0]],'México':[[0,0,0,0],[1,1,1,1],[1,0,1,0]],'Europa':[[0,0,1,0],[1,0,1,0],[1,0,1,0]],'China':[[1,1,1,0],[0,1,0,1],[1,0,1,0]],'América do Sul':[[0,1,0,0],[0,1,1,1],[1,0,1,0]],'Oriente Médio':[[0,0,0,1],[1,1,1,0],[1,0,1,0]]}
+};
+
+var RISK=[['Concentração de clientes',0,'DADO INDISPONÍVEL — requer ERP (Fase 5)'],['Concentração de países',3.4,'EUA = 27% das exportações DEMO; HHI de destinos 0,11'],['Tarifas',4.1,'Revisão tarifária EUA em curso (E1)'],['Câmbio',2.6,'Volatilidade USD/BRL 12m acima da média 5a'],['Frete',2.2,'Índice geral em queda; rotas Europa pressionadas'],['Energia',2.4,'Brent volátil; energia elétrica +1,4% m/m'],['Matéria-prima',3.0,'Tora de pinus +4,1% m/m; oferta regional apertada'],['Conflitos',1.8,'Rotas do Oriente Médio — prêmio de seguro'],['Sanções',1.5,'Efeito líquido possivelmente favorável (substituição de birch)'],['Queda de demanda',3.6,'Housing starts EUA ↓; China ↓'],['Dependência logística',2.9,'67% do volume via 2 complexos portuários (PR/SC)']];
+
+var OPP=DEST.slice(0,18).map(function(d){var imp=(hash(d.c+'imp')-.35)*.24;var comp=(hash(d.c+'cmp')-.5)*.12;return{d:d,imp:imp,br:d.dsh,comp:comp}});
+OPP.forEach(function(o){o.score=(o.imp>0?1:0)+(o.br>0?1:0)+(o.comp<0?1:0);o.sig=o.score===3});
+OPP.sort(function(a,b){return b.score-a.score||b.imp-a.imp});
+(function(){var mx=OPP.filter(function(o){return o.d.c==='MX'})[0];if(mx){mx.imp=.082;mx.comp=-.012;mx.score=3;mx.sig=true}OPP.sort(function(a,b){return b.score-a.score||b.imp-a.imp})})();
+
+var NCM=[
+ ['4403.21','Madeira em bruto — pinus (Pinus spp.), seção ≥ 15 cm','Madeira em tora'],['4403.98','Madeira em bruto — eucalipto (Eucalyptus spp.)','Madeira em tora'],
+ ['4407.11','Madeira serrada — pinus (Pinus spp.)','Madeira serrada'],['4407.29','Madeira serrada — tropicais, outras','Madeira serrada'],
+ ['4408.10','Folhas para folheados / lâminas — coníferas','Lâminas'],['4408.39','Folhas para folheados — tropicais, outras','Lâminas'],['4408.90','Folhas para folheados — outras','Lâminas'],
+ ['4410.11','Painéis de partículas (aglomerado)','Painéis'],['4411.14','MDF — espessura > 9 mm','Painéis'],
+ ['4412.31','Compensado — ≥ 1 face de madeira tropical','Compensados'],['4412.33','Compensado — ≥ 1 face de não conífera (espécies listadas)','Compensados'],['4412.34','Compensado — ≥ 1 face de não conífera, outras (ex.: eucalipto)','Compensados'],['4412.39','Compensado — ambas as faces de coníferas (pinus)','Compensados'],
+ ['4412.41','LVL — ≥ 1 face de madeira tropical','LVL'],['4412.42','LVL — outro, ≥ 1 face de não conífera','LVL'],['4412.49','LVL — ambas as faces de coníferas','LVL']
+];
+
+/* market cycle — classificação por regra configurável */
+function phaseOf(s){var lvl=last(s)/mean(s.slice(-60))-1;var mom=last(s)/s[s.length-7]-1;var ph;if(lvl>=0){ph=mom>.01?'EXPANSÃO':mom<-.01?'DESACELERAÇÃO':'PICO'}else{ph=mom>.01?'RECUPERAÇÃO':'CONTRAÇÃO'}return{ph:ph,lvl:lvl,mom:mom}}
+var PHASES=['EXPANSÃO','PICO','DESACELERAÇÃO','CONTRAÇÃO','RECUPERAÇÃO'];
+var CYCLE=[['PLYWOOD',PRODUCTS.plywood.sPrice],['VENEER',P.VENEER.s],['PANELS',PRODUCTS.panels.sProd],['CONSTRUCTION',P.CONSTRUCTION.s],['EXPORTS BR',PRODUCTS.plywood.sExp],['TRUCKING',P.TRUCKING.s],['SHIPPING',P.SHIPPING.s],['USA',P.USA.s],['EUROPE',P.EUROPE.s]].map(function(r){var o=phaseOf(r[1]);o.k=r[0];return o});
+
+/* ============ charts ============ */
+var CH=[];var cid=0;
+function C(type,data,opt){var id='c'+(++cid);CH.push({id:id,type:type,data:data,opt:opt||{}});return'<div class="chart" id="'+id+'"></div>'}
+function nice(min,max,n){var r=max-min||Math.abs(max)||1;var st=Math.pow(10,Math.floor(Math.log10(r/n)));var e=r/n/st;st*=e>=5?10:e>=2?5:e>=1?2:1;var a=Math.floor(min/st)*st,b=Math.ceil(max/st)*st,t=[];for(var v=a;v<=b+st*.5;v+=st)t.push(+v.toFixed(10));return t}
+function tickFmt(v){var a=Math.abs(v);if(a>=1e6)return fmt(v/1e6,1)+'M';if(a>=1e4)return fmt(v/1e3,0)+'k';if(a>=100)return fmt(v,0);if(a>=10)return fmt(v,1);return fmt(v,2)}
+var COLORS=['--copper','--forest','--slate','--wood','--info','--warn'];
+function spark(s,cls,w,h){w=w||120;h=h||30;var a=s.slice(-24),mn=Math.min.apply(0,a),mx=Math.max.apply(0,a),r=mx-mn||1;var pts=a.map(function(v,i){return[(i/(a.length-1))*(w-4)+2,h-3-(v-mn)/r*(h-6)]});var d='M'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1)}).join('L');var c=cls==='up'?'var(--pos)':cls==='dn'?'var(--neg)':'var(--muted)';var e=pts[pts.length-1];return'<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><path d="'+d+'L'+(w-2)+','+h+'L2,'+h+'Z" fill="'+c+'" fill-opacity=".10" stroke="none"/><path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="1.5" vector-effect="non-scaling-stroke"/><circle cx="'+e[0]+'" cy="'+e[1]+'" r="2.4" fill="'+c+'"/></svg>'}
+
+function drawLine(el,sp){var W=Math.max(280,el.clientWidth),H=sp.opt.h||220,L=46,Rr=12,T=10,B=24;var ser=sp.data.series,lab=sp.data.labels;var all=[];ser.forEach(function(s){all=all.concat(s.v)});var mn=Math.min.apply(0,all),mx=Math.max.apply(0,all);if(sp.opt.zero)mn=Math.min(0,mn);var ticks=nice(mn,mx,4);mn=ticks[0];mx=ticks[ticks.length-1];var n=lab.length;function X(i){return L+(W-L-Rr)*i/(n-1)}function Y(v){return T+(H-T-B)*(1-(v-mn)/(mx-mn))}
+ var g='';ticks.forEach(function(t){g+='<line x1="'+L+'" x2="'+(W-Rr)+'" y1="'+Y(t)+'" y2="'+Y(t)+'" stroke="var(--line2)"/><text x="'+(L-6)+'" y="'+(Y(t)+3.5)+'" text-anchor="end">'+tickFmt(t)+'</text>'});
+ var step=Math.max(1,Math.round(n/(W<500?4:7)));for(var i=0;i<n;i+=step){g+='<text x="'+X(i)+'" y="'+(H-6)+'" text-anchor="middle">'+lab[i]+'</text>'}
+ if(sp.opt.band){var b=sp.opt.band;g+='<rect x="'+L+'" width="'+(W-L-Rr)+'" y="'+Y(b[1])+'" height="'+(Y(b[0])-Y(b[1]))+'" fill="var(--wood)" fill-opacity=".08"/>'}
+ if(sp.opt.ref!=null){g+='<line x1="'+L+'" x2="'+(W-Rr)+'" y1="'+Y(sp.opt.ref)+'" y2="'+Y(sp.opt.ref)+'" stroke="var(--muted)" stroke-dasharray="3 3"/><text x="'+(W-Rr)+'" y="'+(Y(sp.opt.ref)-4)+'" text-anchor="end">'+esc(sp.opt.refL||'média')+'</text>'}
+ ser.forEach(function(s,k){var c=s.c||('var('+COLORS[k%COLORS.length]+')');var d='M'+s.v.map(function(v,i){return X(i).toFixed(1)+','+Y(v).toFixed(1)}).join('L');if(k===0&&sp.opt.area!==false)g+='<path d="'+d+'L'+X(n-1)+','+Y(mn)+'L'+X(0)+','+Y(mn)+'Z" fill="'+c+'" fill-opacity=".09"/>';g+='<path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="'+(k===0?2:1.5)+'"'+(s.dash?' stroke-dasharray="4 3"':'')+'/><circle cx="'+X(n-1)+'" cy="'+Y(s.v[n-1])+'" r="3.2" fill="'+c+'"/>'});
+ g+='<line class="hx" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--ink)" stroke-opacity=".35" visibility="hidden"/>';
+ el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(sp.opt.aria||'Gráfico de linha')+'">'+g+'</svg>'+(ser.length>1||sp.opt.legend?'<div class="legend">'+ser.map(function(s,k){return'<span><i style="background:'+(s.c||'var('+COLORS[k%COLORS.length]+')')+'"></i>'+esc(s.n)+'</span>'}).join('')+'</div>':'');
+ var svg=el.querySelector('svg'),hx=svg.querySelector('.hx');
+ svg.addEventListener('mousemove',function(ev){var r=svg.getBoundingClientRect();var x=(ev.clientX-r.left)*W/r.width;var i=Math.round((x-L)/(W-L-Rr)*(n-1));if(i<0||i>=n)return;hx.setAttribute('x1',X(i));hx.setAttribute('x2',X(i));hx.setAttribute('visibility','visible');tip('<b>'+lab[i]+'</b>'+ser.map(function(s){return'<br>'+esc(s.n)+': '+fmt(s.v[i],sp.opt.d==null?1:sp.opt.d)}).join('')+'<br><span style="opacity:.7">DEMO</span>',ev)});
+ svg.addEventListener('mouseleave',function(){hx.setAttribute('visibility','hidden');tipOff()});
+}
+function drawSlope(el,sp){var W=Math.max(300,el.clientWidth),items=sp.data,H=Math.max(300,items.length*26+60),L=W<500?96:150,Rr=W<500?96:150;var mx=Math.sqrt(Math.max.apply(0,items.map(function(d){return Math.max(d.sh,d.sh0)})));function Y(v){return 30+(H-50)*(1-Math.sqrt(v)/mx)}
+ var g='<text x="'+L+'" y="12" text-anchor="middle">12m anteriores</text><text x="'+(W-Rr)+'" y="12" text-anchor="middle">12m atuais</text><line x1="'+L+'" x2="'+L+'" y1="20" y2="'+(H-10)+'" stroke="var(--line)"/><line x1="'+(W-Rr)+'" x2="'+(W-Rr)+'" y1="20" y2="'+(H-10)+'" stroke="var(--line)"/>';
+ // evitar sobreposição de rótulos
+ function place(arr,key){var s=arr.map(function(d){return{d:d,y:Y(d[key])}}).sort(function(a,b){return a.y-b.y});for(var i=1;i<s.length;i++){if(s[i].y-s[i-1].y<12)s[i].y=s[i-1].y+12}var m={};s.forEach(function(o){m[o.d.c]=o.y});return m}
+ var ly=place(items,'sh0'),ry=place(items,'sh');var mxy=0;Object.keys(ly).forEach(function(k){mxy=Math.max(mxy,ly[k],ry[k])});var HH=Math.max(H,mxy+14);
+ items.forEach(function(d){var c=d.dsh>.002?'var(--pos)':d.dsh<-.002?'var(--neg)':'var(--muted)';g+='<line x1="'+L+'" y1="'+Y(d.sh0)+'" x2="'+(W-Rr)+'" y2="'+Y(d.sh)+'" stroke="'+c+'" stroke-width="'+(Math.abs(d.dsh)>.01?2.2:1.2)+'"/><circle cx="'+L+'" cy="'+Y(d.sh0)+'" r="3" fill="'+c+'"/><circle cx="'+(W-Rr)+'" cy="'+Y(d.sh)+'" r="3" fill="'+c+'"/><text x="'+(L-8)+'" y="'+(ly[d.c]+3.5)+'" text-anchor="end">'+esc(d.n.length>14&&W<500?d.c:d.n)+' '+pct(d.sh0,1).replace('+','')+'</text><text x="'+(W-Rr+8)+'" y="'+(ry[d.c]+3.5)+'" style="fill:'+c+'">'+pct(d.sh,1).replace('+','')+' '+(d.isNew?'NOVO':trend(d.dsh,.002))+'</text>'});
+ el.innerHTML='<svg viewBox="0 0 '+W+' '+HH+'" role="img" aria-label="Export Market Rotation — participação por destino">'+g+'</svg>'}
+function drawRadar(el,sp){var W=Math.min(Math.max(280,el.clientWidth),520),H=W*.86,cx=W/2,cy=H/2+4,r=Math.min(W,H)/2-58;var it=sp.data,n=it.length;var g='';for(var k=1;k<=5;k++){var ring=it.map(function(_,i){var a=-Math.PI/2+i*2*Math.PI/n;return(cx+Math.cos(a)*r*k/5).toFixed(1)+','+(cy+Math.sin(a)*r*k/5).toFixed(1)}).join(' ');g+='<polygon points="'+ring+'" fill="none" stroke="var(--line2)"/>'}
+ it.forEach(function(d,i){var a=-Math.PI/2+i*2*Math.PI/n;var x=cx+Math.cos(a)*(r+10),y=cy+Math.sin(a)*(r+10);g+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+Math.cos(a)*r)+'" y2="'+(cy+Math.sin(a)*r)+'" stroke="var(--line2)"/><text x="'+x+'" y="'+(y+3)+'" text-anchor="'+(Math.cos(a)>.2?'start':Math.cos(a)<-.2?'end':'middle')+'">'+esc(d[0].length>16?d[0].slice(0,15)+'…':d[0])+'</text>'});
+ var pts=it.map(function(d,i){var a=-Math.PI/2+i*2*Math.PI/n;return(cx+Math.cos(a)*r*d[1]/5).toFixed(1)+','+(cy+Math.sin(a)*r*d[1]/5).toFixed(1)}).join(' ');g+='<polygon points="'+pts+'" fill="var(--copper)" fill-opacity=".18" stroke="var(--copper)" stroke-width="2"/>';
+ it.forEach(function(d,i){var a=-Math.PI/2+i*2*Math.PI/n;if(d[1]===0){g+='<text x="'+(cx+Math.cos(a)*18)+'" y="'+(cy+Math.sin(a)*18+3)+'" text-anchor="middle" style="fill:var(--warn)">n/d</text>'}else g+='<circle cx="'+(cx+Math.cos(a)*r*d[1]/5)+'" cy="'+(cy+Math.sin(a)*r*d[1]/5)+'" r="3" fill="var(--copper)"/>'});
+ el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" style="max-width:'+W+'px;margin:auto" role="img" aria-label="Risk radar">'+g+'</svg>'}
+
+/* dot-matrix world map (continentes aproximados, equiretangular) */
+var LAND=[
+[[-168,66],[-162,70],[-140,70],[-120,72],[-95,72],[-80,68],[-62,60],[-56,52],[-66,45],[-70,42],[-76,35],[-81,31],[-80,25],[-84,30],[-90,29],[-97,26],[-97,21],[-92,18],[-87,21],[-88,16],[-83,10],[-79,9],[-83,8],[-86,12],[-92,14],[-105,20],[-110,24],[-112,30],[-117,32],[-124,40],[-124,48],[-133,56],[-150,60],[-165,60]],
+[[-50,60],[-42,60],[-20,70],[-20,80],[-60,82],[-72,78],[-55,70]],
+[[-80,9],[-72,12],[-62,11],[-52,5],[-50,0],[-44,-2],[-35,-5],[-35,-9],[-39,-14],[-41,-22],[-48,-26],[-53,-34],[-58,-38],[-63,-41],[-65,-46],[-68,-51],[-70,-55],[-74,-52],[-74,-44],[-72,-30],[-71,-18],[-76,-14],[-81,-6],[-80,-1],[-78,2],[-77,8]],
+[[-10,36],[-9,43],[-2,44],[-5,48],[2,51],[5,53],[8,57],[5,59],[5,62],[12,66],[20,70],[28,71],[40,68],[60,68],[60,55],[50,45],[40,42],[30,41],[26,40],[23,36],[20,40],[16,38],[12,42],[8,44],[3,43],[-1,37],[-6,36]],
+[[26,40],[36,36],[35,32],[34,28],[43,13],[52,16],[59,22],[57,25],[62,25],[67,24],[73,20],[77,8],[80,15],[88,22],[92,21],[98,16],[98,8],[103,1],[105,10],[109,12],[108,21],[117,24],[122,30],[121,38],[126,38],[129,35],[130,42],[141,48],[142,54],[135,55],[140,60],[155,60],[163,62],[180,65],[180,70],[140,73],[110,77],[80,73],[70,73],[60,68],[60,55],[50,45],[40,42],[30,41]],
+[[-17,21],[-16,12],[-8,5],[5,5],[9,4],[10,-2],[13,-6],[12,-17],[15,-27],[18,-34],[26,-34],[33,-26],[36,-18],[40,-15],[40,-5],[44,1],[51,11],[43,12],[38,18],[33,28],[32,31],[20,32],[10,37],[-1,36],[-6,36],[-10,30]],
+[[114,-22],[122,-18],[130,-12],[137,-12],[142,-11],[146,-19],[153,-26],[151,-33],[147,-38],[140,-38],[135,-34],[131,-31],[115,-34],[113,-26]],
+[[130,31],[135,34],[140,36],[142,40],[141,45],[144,44],[140,41],[136,37],[132,34]],
+[[-5,50],[1,51],[2,53],[-2,56],[-3,58.5],[-6,58],[-5,55],[-3,54],[-5,52]],
+[[95,5],[105,-6],[115,-8],[125,-9],[140,-8],[141,-3],[132,-1],[119,5],[117,7],[108,2],[100,4]],
+[[172,-34],[178,-38],[174,-42],[167,-46],[172,-41]],
+[[44,-25],[47,-25],[50,-15],[49,-12],[44,-17]]
+];
+function inPoly(x,y,p){var c=false;for(var i=0,j=p.length-1;i<p.length;j=i++){if(((p[i][1]>y)!==(p[j][1]>y))&&(x<(p[j][0]-p[i][0])*(y-p[i][1])/(p[j][1]-p[i][1])+p[i][0]))c=!c}return c}
+var MW=1000,MH=392;function MX(lon){return(lon+180)/360*MW}function MY(lat){return(82-lat)/140*MH}
+var DOTS=null;function dots(){if(DOTS)return DOTS;var s='';for(var lat=80;lat>-58;lat-=2.6){for(var lon=-178;lon<180;lon+=2.6){for(var k=0;k<LAND.length;k++){if(inPoly(lon,lat,LAND[k])){s+='<circle cx="'+MX(lon).toFixed(1)+'" cy="'+MY(lat).toFixed(1)+'" r="2.3"/>';break}}}}DOTS=s;return s}
+function drawMap(el,sp){var items=sp.data.items,mode=sp.data.mode||'exports';var mx=Math.max.apply(0,items.map(function(d){return d.v}));var g='<g fill="var(--line)">'+dots()+'</g>';var bx=MX(-48.6),by=MY(-26);
+ if(mode==='exports'){items.forEach(function(d){var x=MX(d.lon),y=MY(d.lat);var mxp=(bx+x)/2,myp=Math.min(by,y)-Math.abs(x-bx)*.18-20;g+='<path d="M'+bx+','+by+' Q'+mxp+','+myp+' '+x+','+y+'" fill="none" stroke="'+(d.dsh>=0?'var(--copper)':'var(--slate)')+'" stroke-opacity=".55" stroke-width="'+(0.6+3.4*d.v/mx).toFixed(2)+'"/>'})}
+ items.forEach(function(d){var x=MX(d.lon),y=MY(d.lat),r=3+13*Math.sqrt(d.v/mx);g+='<circle cx="'+x+'" cy="'+y+'" r="'+r.toFixed(1)+'" fill="'+(d.dsh>=0?'var(--copper)':'var(--slate)')+'" fill-opacity=".85" stroke="var(--surface)" stroke-width="1" data-c="'+d.c+'" style="cursor:pointer"/>'});
+ items.filter(function(d){return d.reg!=='Europa'}).slice(0,3).forEach(function(d){g+='<text x="'+(MX(d.lon)+14)+'" y="'+(MY(d.lat)+4)+'" style="fill:var(--ink2)">'+esc(d.n)+'</text>'});g+='<text x="'+MX(22)+'" y="'+MY(58)+'" style="fill:var(--ink2)">EUROPA</text>';
+ PORTS.forEach(function(p){g+='<rect x="'+(MX(p[1])-3)+'" y="'+(MY(p[2])-3)+'" width="6" height="6" fill="var(--forest)"/>'});
+ el.innerHTML='<div class="map"><svg viewBox="0 0 '+MW+' '+MH+'" role="img" aria-label="Mapa de destinos das exportações">'+g+'</svg></div><div class="legend"><span><i style="background:var(--copper)"></i>ganhando participação</span><span><i style="background:var(--slate)"></i>perdendo participação</span><span><i style="background:var(--forest)"></i>porto de embarque</span><span>área do círculo ∝ valor FOB 12m (DEMO)</span></div>';
+ el.querySelectorAll('circle[data-c]').forEach(function(c){var d=items.filter(function(x){return x.c===c.getAttribute('data-c')})[0];c.addEventListener('mousemove',function(ev){tip('<b>'+esc(d.n)+'</b><br>US$ '+fmt(d.v,0)+' mi · '+pct(d.var)+' a/a<br>participação '+pct(d.sh).replace('+','')+' ('+pp(d.dsh)+')<br>porto destino: '+esc(d.port)+'<br><span style="opacity:.7">DEMO</span>',ev)});c.addEventListener('mouseleave',tipOff);c.addEventListener('click',function(){go('countries',d.c)})})}
+function drawSankey(el,sp){var W=Math.max(320,el.clientWidth),H=sp.opt.h||360,cols=sp.data.cols,links=sp.data.links,nw=10,pad=10;var nodes={};cols.forEach(function(col,ci){col.forEach(function(n){nodes[n]={n:n,ci:ci,in:0,out:0}})});links.forEach(function(l){nodes[l[0]].out+=l[2];nodes[l[1]].in+=l[2]});var tot=0;cols[0].forEach(function(n){tot+=nodes[n].out});var maxN=Math.max.apply(0,cols.map(function(c){return c.length}));var k=(H-pad*(maxN+1))/tot;var lw=W<520?64:120;
+ cols.forEach(function(col,ci){var x=lw+(W-2*lw-nw)*ci/(cols.length-1);var y=pad;col.forEach(function(n){var nd=nodes[n];nd.v=Math.max(nd.in,nd.out);nd.x=x;nd.y=y;nd.h=nd.v*k;nd.oy=y;nd.iy=y;y+=nd.h+pad})});
+ var g='';var lc=['--copper','--forest','--slate','--wood','--info'];
+ links.forEach(function(l){var a=nodes[l[0]],b=nodes[l[1]],h=l[2]*k;var x0=a.x+nw,x1=b.x,y0=a.oy+h/2,y1=b.iy+h/2;a.oy+=h;b.iy+=h;var mx=(x0+x1)/2;var ci=cols[0].indexOf(l[0]);if(ci<0)ci=cols[1].indexOf(l[0]);g+='<path d="M'+x0+','+y0+' C'+mx+','+y0+' '+mx+','+y1+' '+x1+','+y1+'" fill="none" stroke="var('+lc[ci%lc.length]+')" stroke-opacity=".32" stroke-width="'+Math.max(1,h).toFixed(1)+'"><title>'+esc(l[0]+' → '+l[1]+': '+fmt(l[2],0))+'</title></path>'});
+ Object.keys(nodes).forEach(function(key){var nd=nodes[key];var last=nd.ci===cols.length-1,first=nd.ci===0;g+='<rect x="'+nd.x+'" y="'+nd.y+'" width="'+nw+'" height="'+Math.max(1,nd.h)+'" fill="var(--ink2)"/>';g+='<text x="'+(last?nd.x+nw+6:first?nd.x-6:nd.x+nw+6)+'" y="'+(nd.y+nd.h/2+3.5)+'" text-anchor="'+(first?'end':'start')+'" style="fill:var(--ink2)">'+esc(nd.n)+' · '+fmt(nd.v,0)+'</text>'});
+ el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Fluxo de comércio">'+g+'</svg>'}
+function drawCycle(el,sp){var W=Math.max(320,el.clientWidth),H=250,L=20,Rr=20;var pos={'RECUPERAÇÃO':.08,'EXPANSÃO':.3,'PICO':.5,'DESACELERAÇÃO':.7,'CONTRAÇÃO':.92};function X(t){return L+(W-L-Rr)*t}function Y(t){return 120-78*Math.sin((t-.1)*Math.PI/.8*1)}
+ var d='';for(var i=0;i<=60;i++){var t=i/60;d+=(i?'L':'M')+X(t).toFixed(1)+','+(125-80*Math.sin(Math.PI*(t*1.25-.125))).toFixed(1)}
+ function yy(t){return 125-80*Math.sin(Math.PI*(t*1.25-.125))}
+ var g='<path d="'+d+'" fill="none" stroke="var(--line)" stroke-width="10" stroke-linecap="round"/><path d="'+d+'" fill="none" stroke="var(--wood)" stroke-width="1.5" stroke-dasharray="2 4"/>';
+ Object.keys(pos).forEach(function(p){g+='<text x="'+X(pos[p])+'" y="238" text-anchor="middle" style="font-family:var(--f-disp);font-weight:600;letter-spacing:.1em;font-size:12px;fill:var(--ink2)">'+p+'</text><line x1="'+X(pos[p])+'" x2="'+X(pos[p])+'" y1="'+(yy(pos[p])+8)+'" y2="224" stroke="var(--line2)" stroke-dasharray="2 3"/>'});
+ var groups={};sp.data.forEach(function(m){(groups[m.ph]=groups[m.ph]||[]).push(m)});
+ Object.keys(groups).forEach(function(p){groups[p].forEach(function(m,j){var x=X(pos[p]),y=yy(pos[p])-14-j*17;var w=m.k.length*7+14;g+='<rect x="'+(x-w/2)+'" y="'+(y-11)+'" width="'+w+'" height="15" rx="2" fill="var(--ink)"/><text x="'+x+'" y="'+(y)+'" text-anchor="middle" style="fill:var(--surface);font-size:10px">'+esc(m.k)+'</text>'})});
+ Object.keys(pos).forEach(function(p){g+='<circle cx="'+X(pos[p])+'" cy="'+yy(pos[p])+'" r="5" fill="var(--copper)"/>'});
+ el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Market cycle">'+g+'</svg>'}
+function drawScatter(el,sp){var W=Math.max(280,el.clientWidth),H=240,L=46,Rr=12,T=10,B=30;var p=sp.data.pts;var xs=p.map(function(a){return a[0]}),ys=p.map(function(a){return a[1]});var tx=nice(Math.min.apply(0,xs),Math.max.apply(0,xs),4),ty=nice(Math.min.apply(0,ys),Math.max.apply(0,ys),4);function X(v){return L+(W-L-Rr)*(v-tx[0])/(tx[tx.length-1]-tx[0])}function Y(v){return T+(H-T-B)*(1-(v-ty[0])/(ty[ty.length-1]-ty[0]))}var g='';ty.forEach(function(t){g+='<line x1="'+L+'" x2="'+(W-Rr)+'" y1="'+Y(t)+'" y2="'+Y(t)+'" stroke="var(--line2)"/><text x="'+(L-6)+'" y="'+(Y(t)+3.5)+'" text-anchor="end">'+tickFmt(t)+'</text>'});tx.forEach(function(t){g+='<text x="'+X(t)+'" y="'+(H-14)+'" text-anchor="middle">'+tickFmt(t)+'</text>'});g+='<text x="'+(W-Rr)+'" y="'+(H-1)+'" text-anchor="end">'+esc(sp.opt.xl)+'</text><text x="'+L+'" y="'+(T-1)+'">'+esc(sp.opt.yl)+'</text>';p.forEach(function(a,i){g+='<circle cx="'+X(a[0])+'" cy="'+Y(a[1])+'" r="3" fill="var(--copper)" fill-opacity="'+(0.25+0.75*i/p.length).toFixed(2)+'"/>'});el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Dispersão">'+g+'</svg>'}
+function drawIndex(el,sp){drawLine(el,sp)}
+var DRAW={line:drawLine,slope:drawSlope,radar:drawRadar,map:drawMap,sankey:drawSankey,cycle:drawCycle,scatter:drawScatter};
+function hydrate(){CH.forEach(function(c){var el=document.getElementById(c.id);if(el)DRAW[c.type](el,c)})}
+
+function barsH(items,o){o=o||{};var mx=Math.max.apply(0,items.map(function(i){return Math.abs(i[1])}));return'<div class="bars">'+items.map(function(i,k){var dcl=i[2]==null?'':i[2]>0?'up':i[2]<0?'dn':'fl';return'<div class="bar"><span class="nm" title="'+esc(i[0])+'">'+esc(i[0])+'</span><span class="tr"><span class="fi" style="display:block;width:'+(Math.abs(i[1])/mx*100).toFixed(1)+'%;background:'+(o.color||(k===o.hl?'var(--forest)':'var(--copper)'))+'"></span></span><span class="v">'+(o.pre||'')+fmt(i[1],o.d==null?1:o.d)+(o.suf||'')+'</span><span class="dd '+dcl+'">'+(i[2]==null?'':pct(i[2]))+'</span></div>'}).join('')+'</div>'}
+
+/* tooltip & drawer */
+var TIP=document.getElementById('tip');
+function tip(h,ev){TIP.innerHTML=h;TIP.hidden=false;var x=ev.clientX+14,y=ev.clientY+14;var r=TIP.getBoundingClientRect();if(x+r.width>innerWidth-8)x=ev.clientX-r.width-14;if(y+r.height>innerHeight-8)y=ev.clientY-r.height-14;TIP.style.left=x+'px';TIP.style.top=y+'px'}
+function tipOff(){TIP.hidden=true}
+function openSrc(k,ctx){var s=SRC[k];var d=document.getElementById('drawer');d.innerHTML='<button class="x" id="xd">Fechar ✕</button><div class="lbl">De onde veio este número?</div><h3>'+esc(ctx||'Indicador')+'</h3><div><span class="chip demo">SIMULATED DATA</span></div><p class="small muted" style="margin:0">O valor exibido é <b>simulado</b> para demonstrar a interface. A fonte abaixo é a fonte <b>prevista</b> para este indicador quando a integração de dados reais (Fase 3) estiver ativa.</p><dl class="kv"><dt>Fonte</dt><dd>'+esc(s.n)+'</dd><dt>URL</dt><dd>'+(s.u==='—'?'—':'<a href="'+s.u+'" target="_blank" rel="noopener">'+esc(s.u)+'</a>')+'</dd><dt>Tipo</dt><dd>'+esc(s.t)+'</dd><dt>Periodicidade</dt><dd>'+esc(s.p)+'</dd><dt>Cobertura</dt><dd>'+esc(s.c)+'</dd><dt>Metodologia</dt><dd>'+esc(s.m)+'</dd><dt>Período</dt><dd>ago/2026 (referência simulada)</dd><dt>Data do dado</dt><dd>— (simulado)</dd><dt>Data de coleta</dt><dd>— (gerado em 23/09/2026 pelo gerador DEMO)</dd><dt>Status</dt><dd><span class="chip warn">NÃO INTEGRADO</span></dd></dl><div class="lbl" style="margin-top:6px">Linhagem prevista</div><div class="chain small"><span class="n">Fonte</span><span class="a">→</span><span class="n">raw</span><span class="a">→</span><span class="n">staging</span><span class="a">→</span><span class="n">validação</span><span class="a">→</span><span class="n">dw.fact</span><span class="a">→</span><span class="n">indicador</span></div>';document.getElementById('drawerWrap').hidden=false;document.getElementById('xd').focus();document.getElementById('xd').onclick=closeSrc}
+function closeSrc(){document.getElementById('drawerWrap').hidden=true}
+document.getElementById('scrim').onclick=closeSrc;
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSrc()});
+document.addEventListener('click',function(e){var b=e.target.closest('.src');if(b){openSrc(b.getAttribute('data-src'),b.getAttribute('data-ctx'))}});
+
+/* ============ page helpers ============ */
+function panel(title,body,o){o=o||{};return'<section class="panel"'+(o.id?' id="'+o.id+'"':'')+'><div class="hd"><h2>'+title+'</h2>'+(o.sub?'<span class="sub">'+o.sub+'</span>':'')+'<span class="r">'+(o.r||'')+(o.nodemo?'':DEMO)+'</span></div><div class="bd'+(o.flush?' flush':'')+'">'+body+'</div></section>'}
+function ph(kick,h,p,tools){return'<header class="ph"><div><div class="kick">'+kick+'</div><h1>'+h+'</h1>'+(p?'<p>'+p+'</p>':'')+'</div><div class="tools">'+(tools||'')+'</div></header>'}
+var PER=12;
+function perSeg(){return'<div class="seg" role="group" aria-label="Período">'+[[12,'1A'],[36,'3A'],[60,'5A'],[120,'10A']].map(function(p){return'<button data-per="'+p[0]+'" class="'+(PER===p[0]?'on':'')+'">'+p[1]+'</button>'}).join('')+'</div>'}
+function cut(a){return a.slice(-PER)}
+function kpi(label,val,ch,src,ctx,pol,note){var c=tcls(ch,pol);return'<div class="st"><div class="t"><span class="lbl">'+label+'</span>'+srcBtn(src,ctx||label)+'</div><div class="v num">'+val+'</div><div class="d"><span class="arrow '+c+'">'+trend(ch)+' '+pct(ch)+'</span> '+(note||'vs período anterior')+'</div></div>'}
+function statusTile(label,state,cls,desc,src){return'<div class="st"><div class="t"><span class="lbl">'+label+'</span>'+srcBtn(src,label)+'</div><div class="stripe" style="background:'+cls+'"></div><div class="v">'+state+'</div><div class="d">'+desc+'</div></div>'}
+
+/* ============ pages ============ */
+var PAGES={};
+
+PAGES.overview=function(){
+ var exp=PRODUCTS.plywood.sExp,imp=PRODUCTS.plywood.sImp;
+ var idx=computeIndex();var ich=idx[idx.length-1]/idx[idx.length-2]-1;
+ var h=ph('Global Market Overview','GLOBAL WOOD MARKET','Estado do mercado mundial e brasileiro de madeira, lâminas, painéis e compensados — com logística, câmbio e geopolítica. Dados simulados, estrutura pronta para dados reais.',perSeg()+' <span class="chip demo">SIMULATED DATA</span>');
+ h+='<div class="status">'+
+  statusTile('Global market status','ESTÁVEL','var(--warn)','Preços ↑ com demanda mista: EUA ↓, Europa ↑, China →','fao')+
+  statusTile('Brazil','EM ALTA','var(--pos)','Produção de painéis +1,8% a/a; base florestal plantada em expansão','ibge')+
+  statusTile('Exports',trend(chg(exp,12))+' '+pct(chg(exp,12)),'var(--pos)','Rotação de destinos: EUA perde participação, México e Europa ganham','comex')+
+  statusTile('Imports',trend(chg(imp,12))+' '+pct(chg(imp,12)),'var(--muted)','Importações brasileiras de compensado (mil m³, 12m)','comex')+
+  statusTile('Plywood','DESACEL.','var(--warn)','Preço acima da média 5a, momentum 6m perdendo força','itto')+
+  statusTile('Veneer','ESTÁVEL','var(--muted)','Preço '+pct(chg(P.VENEER.s))+' m/m; oferta de eucalipto crescente','itto')+
+  statusTile('Panels','↑ MODERADO','var(--pos)','OSB e LVL lideram crescimento; aglomerado estável','fao')+
+  statusTile('Logistics','ALÍVIO','var(--pos)','Frete índice '+pct(chg(P.SHIPPING.s))+' m/m; rotas Europa pressionadas','drewry')+
+  statusTile('FX','USD/BRL '+fmt(last(P['USD/BRL'].s),2),'var(--pos)','Real mais fraco favorece receita em R$ do exportador (hipótese)','bcb')+
+  statusTile('Geopolitics','ELEVADO','var(--neg)','2 eventos de impacto potencial ALTO em monitoramento','news')+
+  statusTile('Market sentiment','NEUTRO +','var(--warn)','Índice CELPLAC '+fmt(last(idx),1)+' ('+pct(ich)+' m/m) — 6 de 10 indicadores ↑','internal')+
+  '</div>';
+ h+=panel('Market Pulse',pulseGrid(),{sub:'variação mensal · cor = leitura para o exportador (hipótese)',flush:true});
+ h+='<div class="g g-7-5">'+
+   panel('Global Wood Market',C('line',{series:[{n:'Produção mundial de painéis (mi m³)',v:cut(PRODUCTS.panels.sProd)},{n:'Consumo aparente',v:cut(PRODUCTS.panels.sCons)}],labels:cut(LABELS)},{h:210,d:1}),{r:srcBtn('fao','Produção mundial de painéis')})+
+   panel('Market Alerts',alertsList(),{flush:true,sub:'últimos 30 dias'})+'</div>';
+ h+='<div class="g g2">'+
+   panel('Brazil — Exports vs Imports',C('line',{series:[{n:'Exportações compensado (mil m³)',v:cut(exp)},{n:'Importações (mil m³)',v:cut(imp),dash:1}],labels:cut(LABELS)},{h:200,d:0}),{r:srcBtn('comex','Exportações de compensado')})+
+   panel('Trade — Top destinos',barsH(DEST.slice(0,8).map(function(d){return[d.n,d.v,d.var]}),{pre:'US$ ',suf:' mi',d:0})+'<p class="small muted" style="margin:10px 0 0">Ranking identificado automaticamente pelos dados · 12 meses · valor FOB</p>',{r:srcBtn('comex','Destinos das exportações')})+'</div>';
+ h+='<div class="g g3">'+
+   panel('Plywood',miniProduct('plywood'),{r:'<a href="#plywood" class="small">abrir →</a>'})+
+   panel('Veneer',miniProduct('veneer'),{r:'<a href="#veneer" class="small">abrir →</a>'})+
+   panel('Logistics',logMini(),{r:'<a href="#logistics" class="small">abrir →</a>'})+'</div>';
+ h+=panel('Market Cycle',C('cycle',CYCLE)+'<p class="small muted" style="margin:6px 0 0">Posição calculada por regra configurável: nível vs. média de 5 anos × momentum de 6 meses. É um <b>posicionamento</b>, não previsão.</p>');
+ h+='<div class="g g2">'+panel('Geopolitics',EVENTS.slice(0,4).map(eventRow).join(''),{flush:true,r:'<a href="#geopolitics" class="small">matriz →</a>'})+panel('News — Impact Engine',NEWS.slice(0,5).map(newsRow).join(''),{flush:true,r:'<a href="#news" class="small">todas →</a>'})+'</div>';
+ h+='<div class="g g2">'+panel('Opportunity Radar',oppTable(5),{flush:true,r:'<a href="#opportunity" class="small">abrir →</a>'})+panel('Risk Radar',C('radar',RISK),{r:'<a href="#risk" class="small">abrir →</a>'})+'</div>';
+ return h};
+
+function pulseGrid(){return'<div class="pulse">'+PULSE.map(function(p){var c=chg(p.s),cl=tcls(c,p.pol);return'<div class="pi"><span class="k">'+p.k+'</span><span class="ar arrow '+cl+'">'+trend(c)+'</span><span class="val">'+fmt(last(p.s),p.d)+' <span class="small muted">'+p.u+'</span></span><span class="ch '+cl+'">'+pct(c)+'</span>'+spark(p.s,cl,200,30)+'<span class="meta"><span>'+esc(p.l)+' · ago/26 vs jul/26</span>'+srcBtn(p.src,p.l)+'</span></div>'}).join('')+'</div>'}
+function alertsList(){return ALERTS.map(function(a){return'<div class="li"><span class="sev" style="background:'+ALC[a[0]]+'"></span><div><div class="lbl" style="color:'+ALC[a[0]]+'">'+a[1]+'</div><div class="small">'+esc(a[2])+'</div><div class="mt">'+(a[3]?'<a href="#geopolitics" class="small">evento '+a[3]+'</a>':'')+DEMO+'</div></div></div>'}).join('')}
+function miniProduct(k){var p=PRODUCTS[k];var c=chg(p.sPrice),cp=chg(p.sProd,12);return'<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><div class="lbl">Preço (índice)</div><div class="num" style="font-size:20px">'+fmt(last(p.sPrice),1)+' <span class="arrow '+tcls(c)+' small">'+trend(c)+' '+pct(c)+'</span></div></div><div><div class="lbl">Produção a/a</div><div class="num" style="font-size:20px">'+pct(cp)+'</div></div></div><div style="margin-top:8px">'+spark(p.sPrice,tcls(c),300,46)+'</div><div class="small muted">'+srcBtn(p.src,p.t)+'</div>'}
+function logMini(){var s=P.SHIPPING.s,c=chg(s);return'<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><div class="lbl">Frete índice</div><div class="num" style="font-size:20px">'+fmt(last(s),0)+' <span class="arrow '+tcls(c,-1)+' small">'+trend(c)+' '+pct(c)+'</span></div></div><div><div class="lbl">Brent</div><div class="num" style="font-size:20px">71,2</div></div></div><div style="margin-top:8px">'+spark(s,tcls(c,-1),300,46)+'</div><div class="small muted">'+srcBtn('drewry','Frete contêiner')+'</div>'}
+function eventRow(e){var ic=e.imp==='ALTO'?'solid-neg':e.imp==='MÉDIO'?'solid-warn':'info';return'<div class="li"><span class="sev" style="background:'+(e.imp==='ALTO'?'var(--neg)':e.imp==='MÉDIO'?'var(--warn)':'var(--info)')+'"></span><div><div class="ti">'+esc(e.t)+'</div><div class="mt"><span class="chip">'+e.cat+'</span><span class="chip mono">'+e.dt.split('-').reverse().join('/')+'</span><span class="chip">'+esc(e.c)+'</span><span class="chip '+ic+'">IMPACTO POTENCIAL '+e.imp+'</span><span class="chip">CONFIANÇA '+e.conf+'</span>'+DEMO+'</div></div></div>'}
+function newsRow(n){var c=CLS[n.cls];return'<div class="li"><span class="sev" style="background:'+(n.cls==='direto'?'var(--neg)':n.cls==='indireto'?'var(--warn)':n.cls==='contexto'?'var(--info)':'var(--muted)')+'"></span><div><div class="ti">'+esc(n.t)+'</div><div class="mt"><span class="chip '+c[1]+'">'+c[0]+'</span><span class="chip mono">'+n.dt.split('-').reverse().join('/')+'</span><span class="chip">'+esc(n.cat)+'</span><span class="chip">'+esc(n.c)+'</span><span class="small muted">Afeta: '+esc(n.prod)+'</span>'+DEMO+'</div></div></div>'}
+function oppTable(n){return'<div class="tw"><table class="t"><thead><tr><th>Mercado</th><th class="n">Import. destino</th><th class="n">Part. Brasil</th><th class="n">Concorrência</th><th>Leitura</th></tr></thead><tbody>'+OPP.slice(0,n||99).map(function(o){return'<tr class="click" data-go="countries" data-arg="'+o.d.c+'"><td>'+esc(o.d.n)+'</td><td class="n '+(o.imp>0?'up':'dn')+'">'+trend(o.imp)+' '+pct(o.imp)+'</td><td class="n '+(o.br>0?'up':'dn')+'">'+trend(o.br,.001)+' '+pp(o.br)+'</td><td class="n '+(o.comp<0?'up':'dn')+'">'+trend(o.comp)+' '+pct(o.comp)+'</td><td>'+(o.sig?'<span class="chip solid-pos">OPPORTUNITY SIGNAL</span>':o.score===2?'<span class="chip pos">SINAL PARCIAL</span>':'<span class="chip">SEM SINAL</span>')+'</td></tr>'}).join('')+'</tbody></table></div>'}
+
+function productPage(k){var p=PRODUCTS[k];var h=ph('Wood · '+p.k,p.t,'Produção, consumo, comércio e preços — segmentação por produto, principais produtores, compradores e fornecedores.',perSeg());
+ h+='<div class="status">'+kpi('Produção',fmt(last(p.sProd),1)+' '+p.u,chg(p.sProd,12),p.src,p.t+' — produção',1,'a/a')+kpi('Consumo aparente',fmt(last(p.sCons),1)+' '+p.u,chg(p.sCons,12),p.src,p.t+' — consumo',1,'a/a')+kpi('Exportações (comércio)',fmt(last(p.sExp),1)+' '+p.u,chg(p.sExp,12),'comtrade',p.t+' — exportações',1,'a/a')+kpi('Importações',fmt(last(p.sImp),1)+' '+p.u,chg(p.sImp,12),'comtrade',p.t+' — importações',1,'a/a')+kpi('Preço (índice)',fmt(last(p.sPrice),1),chg(p.sPrice),k==='timber'?'wb':'itto',p.t+' — preço',1,'m/m')+'</div>';
+ h+='<div class="g g-7-5">'+panel('Produção vs consumo',C('line',{series:[{n:'Produção ('+p.u+')',v:cut(p.sProd)},{n:'Consumo aparente',v:cut(p.sCons)}],labels:cut(LABELS)},{h:230}),{r:srcBtn(p.src,'Produção e consumo')})+panel('Preço — atual vs média 5 anos',C('line',{series:[{n:'Índice de preço',v:cut(p.sPrice)}],labels:cut(LABELS)},{h:230,ref:mean(p.sPrice.slice(-60)),refL:'média 5a'}),{r:srcBtn('itto','Preço')})+'</div>';
+ h+=panel('Segmentos de produto','<div class="tw"><table class="t"><thead><tr><th>Produto</th><th class="n">Volume ('+p.u+')</th><th class="n">Var. a/a</th><th class="n">Preço médio (US$/m³)</th><th class="n">Valor (US$ bi)</th><th>Tendência</th><th>Fonte</th></tr></thead><tbody>'+p.segs.map(function(s){return'<tr><td>'+esc(s[0])+'</td><td class="n">'+fmt(s[1],1)+'</td><td class="n '+tcls(s[2])+'">'+pct(s[2])+'</td><td class="n">'+fmt(s[3],0)+'</td><td class="n">'+fmt(s[1]*s[3]/1000,1)+'</td><td class="arrow '+tcls(s[2])+'">'+trend(s[2])+'</td><td>'+srcBtn(p.src,s[0])+'</td></tr>'}).join('')+'</tbody></table></div>',{flush:true});
+ h+='<div class="g g3">'+panel('Principais produtores',barsH(p.prod.map(function(x){return[x[0],x[1],(hash(x[0]+k)-.45)*.12]}),{hl:p.prod.findIndex(function(x){return x[0]==='Brasil'})}),{sub:p.u})+panel('Principais compradores',barsH(p.buy.map(function(x){return[x[0],x[1],(hash(x[0]+k+'b')-.45)*.14]})),{sub:'importações · '+p.u})+panel('Principais fornecedores',barsH(p.sup.map(function(x){return[x[0],x[1],(hash(x[0]+k+'s')-.45)*.14]}),{hl:p.sup.findIndex(function(x){return x[0]==='Brasil'})}),{sub:'exportações · '+p.u})+'</div>';
+ if(p.species)h+=panel('Principais espécies (participação no volume)',barsH(p.species.map(function(x){return[x[0],x[1],null]}),{suf:'%',d:0}),{});
+ return h}
+PAGES.timber=function(){return productPage('timber')};PAGES.veneer=function(){return productPage('veneer')};PAGES.plywood=function(){return productPage('plywood')};PAGES.panels=function(){return productPage('panels')};
+
+PAGES.world=function(){var h=ph('Global Market · World','GLOBAL WOOD MARKET','Produção, consumo, comércio, preços, demanda e capacidade produtiva mundiais.',perSeg());
+ var cap=PRODUCTS.panels.sProd.map(function(v){return v*1.21});
+ h+='<div class="status">'+kpi('Produção (painéis)',fmt(last(PRODUCTS.panels.sProd),0)+' mi m³',chg(PRODUCTS.panels.sProd,12),'fao','Produção mundial',1,'a/a')+kpi('Consumo aparente',fmt(last(PRODUCTS.panels.sCons),0)+' mi m³',chg(PRODUCTS.panels.sCons,12),'fao','Consumo mundial',1,'a/a')+kpi('Comércio mundial',fmt(last(PRODUCTS.panels.sExp),0)+' mi m³',chg(PRODUCTS.panels.sExp,12),'comtrade','Comércio mundial',1,'a/a')+kpi('Preço (índice)',fmt(last(P.WOOD.s),1),chg(P.WOOD.s),'itto','Wood Price Index',1,'m/m')+kpi('Utilização de capacidade','82,6%',-.011,'fao','Capacidade produtiva',1,'a/a')+kpi('Demanda (construção)',fmt(last(P.CONSTRUCTION.s),1),chg(P.CONSTRUCTION.s),'fred','Construção',1,'m/m')+'</div>';
+ h+='<div class="g g2">'+panel('Produção, consumo e capacidade',C('line',{series:[{n:'Capacidade',v:cut(cap),dash:1,c:'var(--muted)'},{n:'Produção',v:cut(PRODUCTS.panels.sProd)},{n:'Consumo',v:cut(PRODUCTS.panels.sCons)}],labels:cut(LABELS)},{h:230,area:false}),{r:srcBtn('fao','Produção mundial')})+panel('Comércio mundial — exportações vs importações',C('line',{series:[{n:'Exportações',v:cut(PRODUCTS.panels.sExp)},{n:'Importações',v:cut(PRODUCTS.panels.sImp)}],labels:cut(LABELS)},{h:230}),{r:srcBtn('comtrade','Comércio mundial')})+'</div>';
+ h+='<div class="g g2">'+panel('Principais produtores (painéis)',barsH(PRODUCTS.panels.prod.map(function(x){return[x[0],x[1],(hash(x[0])-.45)*.1]}),{hl:4}),{sub:'mi m³'})+panel('Principais consumidores',barsH([['China',205],['EUA',62],['Alemanha',18],['Japão',14],['Rússia',13],['Índia',12],['Brasil',11],['Polônia',10]].map(function(x){return[x[0],x[1],(hash(x[0]+'c')-.45)*.1]}),{hl:6}),{sub:'mi m³ · consumo aparente'})+'</div>';
+ return h};
+
+PAGES.brazil=function(){var h=ph('Global Market · Brazil','BRAZIL MARKET','Cadeia florestal-industrial brasileira. Utilizar dados oficiais (IBGE PEVS, SNIF, Comex Stat) sempre que disponíveis.',perSeg());
+ var rows=[['Produção florestal (valor, R$ bi)',41.2,.052,'ibge'],['Madeira em tora — silvicultura (mi m³)',298,.021,'ibge'],['Silvicultura — área plantada (mi ha)',10.4,.028,'iba'],['Pinus — tora (mi m³)',48.2,.018,'ibge'],['Eucalipto — tora (mi m³)',182,.024,'ibge'],['Madeira serrada (mi m³)',9.6,.006,'snif'],['Lâminas (mi m³)',1.0,.014,'abimci'],['Compensados (mi m³)',3.1,.019,'abimci'],['Painéis reconstituídos (mi m³)',8.9,.011,'iba'],['Exportações cap. 44 (US$ bi)',4.9,.043,'comex'],['Importações cap. 44 (US$ mi)',310,-.018,'comex']];
+ h+=panel('Indicadores da cadeia','<div class="tw"><table class="t"><thead><tr><th>Indicador</th><th class="n">Último</th><th class="n">Var. a/a</th><th>Tendência</th><th>Histórico 24m</th><th>Fonte</th></tr></thead><tbody>'+rows.map(function(r,i){var s=gen(r[1],r[2]/12,.02);return'<tr><td>'+esc(r[0])+'</td><td class="n">'+fmt(r[1],1)+'</td><td class="n '+tcls(r[2])+'">'+pct(r[2])+'</td><td class="arrow '+tcls(r[2])+'">'+trend(r[2])+'</td><td style="width:130px">'+spark(s,tcls(r[2]),120,24)+'</td><td>'+srcBtn(r[3],r[0])+'</td></tr>'}).join('')+'</tbody></table></div>',{flush:true,sub:'PEVS é anual — valores mensais serão interpolados apenas quando indicado'});
+ h+='<div class="g g2">'+panel('Exportações vs importações — compensado',C('line',{series:[{n:'Exportações (mil m³)',v:cut(PRODUCTS.plywood.sExp)},{n:'Importações',v:cut(PRODUCTS.plywood.sImp),dash:1}],labels:cut(LABELS)},{h:220}),{r:srcBtn('comex','Exportações de compensado')})+panel('Produção por espécie',barsH([['Eucalipto',182,.024],['Pinus',48.2,.018],['Tropicais nativas',11.4,-.031],['Outras',6.1,.004]]),{sub:'tora, mi m³'})+'</div>';
+ return h};
+
+PAGES.regions=function(){var reg={};DEST.forEach(function(d){var r=reg[d.reg]=reg[d.reg]||{n:d.reg,v:0,v0:0,c:[]};r.v+=d.v;r.v0+=d.v0;r.c.push(d.n)});var arr=Object.keys(reg).map(function(k){var r=reg[k];r.var=r.v/r.v0-1;r.sh=r.v/DEST.total;r.dsh=r.sh-r.v0/DEST.total0;return r}).sort(function(a,b){return b.v-a.v});
+ var h=ph('Global Market · Regions','REGIONS','Exportações brasileiras agregadas por região de destino e leitura macro regional.');
+ h+=panel('Exportações por região','<div class="tw"><table class="t"><thead><tr><th>Região</th><th class="n">US$ mi (12m)</th><th class="n">Var. a/a</th><th class="n">Participação</th><th class="n">Δ part.</th><th>Países</th></tr></thead><tbody>'+arr.map(function(r){return'<tr><td><b>'+esc(r.n)+'</b></td><td class="n">'+fmt(r.v,0)+'</td><td class="n '+tcls(r.var)+'">'+pct(r.var)+'</td><td class="n">'+pct(r.sh).replace('+','')+'</td><td class="n '+(r.dsh>0?'up':'dn')+'">'+pp(r.dsh)+'</td><td class="small muted">'+esc(r.c.join(', '))+'</td></tr>'}).join('')+'</tbody></table></div>',{flush:true,r:srcBtn('comex','Exportações por região')});
+ h+=panel('Participação por região',barsH(arr.map(function(r){return[r.n,r.sh*100,r.var]}),{suf:'%',d:1}));
+ return h};
+
+var CSEL='MX';
+PAGES.countries=function(arg){if(arg)CSEL=arg;var d=DEST.filter(function(x){return x.c===CSEL})[0]||DEST[0];var hs=function(s){return hash(d.c+s)};
+ var h=ph('Global Market · Countries','COUNTRY INTELLIGENCE','Perfil de país: economia, construção, comércio, relação com o Brasil e riscos.','<label class="small muted" for="csel">País</label> <select id="csel">'+DEST.slice().sort(function(a,b){return a.n.localeCompare(b.n)}).map(function(x){return'<option value="'+x.c+'"'+(x.c===d.c?' selected':'')+'>'+esc(x.n)+'</option>'}).join('')+'</select>');
+ var gdp=(hs('g')*5-0.5)/100,pop=Math.round(5+hs('p')*330),cons=(hs('k')-.4)*.1;
+ h+='<div class="status">'+kpi('PIB (US$ tri)',fmt(.1+hs('gd')*4,2),gdp,'imf',d.n+' — PIB',1,'crescimento a/a')+'<div class="st"><div class="t"><span class="lbl">População</span>'+srcBtn('wb',d.n+' — população')+'</div><div class="v num">'+pop+' mi</div><div class="d">—</div></div>'+kpi('Construção',fmt(90+hs('c')*20,1)+' pts',cons,'wb',d.n+' — construção',1,'a/a')+kpi('Importações de madeira',fmt(.2+hs('i')*6,2)+' US$ bi',(hs('ii')-.4)*.2,'comtrade',d.n+' — importações',1,'a/a')+kpi('Compras do Brasil','US$ '+fmt(d.v,0)+' mi',d.var,'comex',d.n+' — compras do Brasil',1,'a/a')+kpi('Participação BR nas compras',pct(0.03+hs('sh')*.25).replace('+',''),d.dsh,'comtrade',d.n+' — participação do Brasil',1,'Δ a/a')+'</div>';
+ var sup=[['China',.2+hs('s1')*.4],['Brasil',.05+hs('s2')*.25],['Chile',.02+hs('s3')*.12],['Indonésia',.02+hs('s4')*.1],['Vietnã',.02+hs('s5')*.1],['Local/outros',.1+hs('s6')*.2]].sort(function(a,b){return b[1]-a[1]});
+ h+='<div class="g g3">'+panel('Principais fornecedores',barsH(sup.map(function(s){return[s[0],s[1]*100,(hash(d.c+s[0])-.45)*.2]}),{suf:'%',hl:sup.findIndex(function(s){return s[0]==='Brasil'})}),{sub:'participação nas importações de madeira/painéis',r:srcBtn('comtrade','Fornecedores')})+panel('Principais produtos importados',barsH([['Compensado (4412)',38+hs('a')*20],['Madeira serrada (4407)',20+hs('b')*15],['MDF/aglomerado (4410/11)',10+hs('c2')*10],['Lâminas (4408)',4+hs('d')*6],['Outros cap. 44',8]].map(function(x){return[x[0],x[1],null]}),{suf:'%',d:0}),{r:srcBtn('comtrade','Produtos')})+
+  panel('Relação com o Brasil','<dl class="kv"><dt>Valor 12m</dt><dd class="num">US$ '+fmt(d.v,1)+' mi</dd><dt>Volume</dt><dd class="num">'+fmt(d.vol,0)+' mil m³</dd><dt>Preço médio</dt><dd class="num">US$ '+fmt(d.price,0)+'/m³</dd><dt>Participação</dt><dd class="num">'+pct(d.sh).replace('+','')+' do total exportado</dd><dt>Porto destino</dt><dd>'+esc(d.port)+'</dd><dt>Risco logístico</dt><dd><span class="chip '+(hs('rl')>.6?'neg':hs('rl')>.3?'warn':'pos')+'">'+(hs('rl')>.6?'ALTO':hs('rl')>.3?'MÉDIO':'BAIXO')+'</span></dd><dt>Risco geopolítico</dt><dd><span class="chip '+(d.c==='US'||d.c==='CN'?'neg':hs('rg')>.5?'warn':'pos')+'">'+(d.c==='US'||d.c==='CN'?'ALTO':hs('rg')>.5?'MÉDIO':'BAIXO')+'</span></dd><dt>Tendência</dt><dd class="arrow '+tcls(d.var)+'">'+trend(d.var)+' '+pct(d.var)+' a/a</dd></dl>',{r:srcBtn('comex','Relação com o Brasil')})+'</div>';
+ var s=gen(d.v/12,.004*(d.var>0?1:-1),.12,.05);h+=panel('Compras do Brasil — histórico mensal (US$ mi)',C('line',{series:[{n:d.n,v:cut(s)}],labels:cut(LABELS)},{h:200}),{r:perSeg()});
+ var evs=EVENTS.filter(function(e){return e.c.indexOf(d.n)>=0||(d.reg==='Europa'&&/Europa|UE|União/.test(e.c))||(d.c==='US'&&/EUA/.test(e.c))});h+=panel('Eventos relacionados',evs.length?evs.map(eventRow).join(''):'<div class="unavail">EVIDÊNCIA INSUFICIENTE — nenhum evento classificado para este país</div>',{flush:!!evs.length});
+ return h};
+
+PAGES.species=function(){var h=ph('Wood · Species','SPECIES INTELLIGENCE','Disponibilidade, produção, preço, comércio e demanda por grupo de espécies.');
+ h+='<div class="g g2">'+SPECIES.map(function(s){var c=chg(s.s,12);return panel(s.g,'<p class="small muted" style="margin:0 0 10px">'+esc(s.d)+'</p><div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap"><span class="lbl">Disponibilidade</span><span class="chip '+(s.av==='ALTA'?'pos':s.av==='BAIXA'?'neg':'warn')+'">'+s.av+'</span><span class="lbl" style="margin-left:auto">Tendência</span><span class="arrow '+tcls(c)+'">'+trend(c)+' '+pct(c)+'</span></div><div class="tw"><table class="t"><tbody>'+s.rows.map(function(r){return'<tr><td>'+esc(r[0])+'</td><td class="n">'+fmt(r[1],r[1]<20?1:0)+'</td><td class="n '+tcls(r[2])+'">'+pct(r[2])+'</td></tr>'}).join('')+'</tbody></table></div><div style="margin-top:8px">'+spark(s.s,tcls(c),400,40)+'</div>',{r:srcBtn(s.g==='OUTRAS RELEVANTES'?'fao':'ibge',s.g)})}).join('')+'</div>';
+ return h};
+
+PAGES.exports=function(){var T=DEST.total;var vol=DEST.reduce(function(s,d){return s+d.vol},0),ton=DEST.reduce(function(s,d){return s+d.t},0);
+ var h=ph('Trade · Exports','BRAZIL WOOD EXPORTS','Valor, volume, preço médio, destino, origem e NCM. Destinos identificados automaticamente a partir dos dados — nenhum país pré-fixado.',perSeg());
+ h+='<div class="status">'+kpi('Valor FOB (12m)','US$ '+fmt(T,0)+' mi',T/DEST.total0-1,'comex','Valor exportado',1,'a/a')+kpi('Volume',fmt(vol,0)+' mil m³',.031,'comex','Volume exportado',1,'a/a')+kpi('Peso líquido',fmt(ton,0)+' mil t',.028,'comex','Peso exportado',1,'a/a')+kpi('Contêineres (est.)',fmt(vol*1000/62,0)+' FEU',.029,'antaq','Contêineres',1,'a/a · ~62 m³/FEU (premissa)')+kpi('Preço médio','US$ '+fmt(T*1000/vol,0)+'/m³',.017,'comex','Preço médio',1,'a/a')+kpi('Destinos ativos',String(DEST.length),0,'comex','Destinos ativos',1,'2 novos mercados')+'</div>';
+ h+=panel('Mapa mundial — destinos e rotas',C('map',{items:DEST}),{r:srcBtn('comex','Mapa de destinos')});
+ h+=panel('Export destinations — análise por país','<div class="tw"><table class="t"><thead><tr><th>#</th><th>País</th><th>Região</th><th class="n">Volume (mil m³)</th><th class="n">Valor (US$ mi)</th><th class="n">Variação</th><th class="n">Participação</th><th class="n">US$/m³</th><th>Tendência</th></tr></thead><tbody>'+DEST.map(function(d,i){return'<tr class="click" data-go="countries" data-arg="'+d.c+'"><td class="n">'+(i+1)+'</td><td><b>'+esc(d.n)+'</b> '+(d.isNew?'<span class="chip pos">NOVO</span>':'')+'</td><td class="small muted">'+esc(d.reg)+'</td><td class="n">'+fmt(d.vol,0)+'</td><td class="n">'+fmt(d.v,1)+'</td><td class="n '+tcls(d.var)+'">'+pct(d.var)+'</td><td class="n">'+pct(d.sh).replace('+','')+'</td><td class="n">'+fmt(d.price,0)+'</td><td class="arrow '+tcls(d.dsh,1,.002)+'">'+trend(d.dsh,.002)+'</td></tr>'}).join('')+'</tbody></table></div>',{flush:true,r:srcBtn('comex','Destinos'),sub:'clique para abrir o perfil do país'});
+ var rot=DEST.slice(0,14);h+='<div class="g g-7-5">'+panel('Export Market Rotation',C('slope',rot),{sub:'participação 12m anteriores → 12m atuais'})+panel('Destination Shift',shiftLists(),{})+'</div>';
+ h+=panel('Por NCM',barsH([['4412.39 — compensado coníferas',DEST.total*.52,.041],['4412.34 — compensado não conífera',DEST.total*.14,.072],['4412.31 — compensado face tropical',DEST.total*.06,-.052],['4408.10 — lâminas coníferas',DEST.total*.07,.018],['4412.49 — LVL coníferas',DEST.total*.05,.121],['4407.11 — serrada de pinus',DEST.total*.16,.012]],{pre:'US$ ',suf:' mi',d:0}),{r:srcBtn('comex','Exportações por NCM')});
+ return h};
+function shiftLists(){var g=DEST.filter(function(d){return d.dsh>.002&&!d.isNew}).sort(function(a,b){return b.dsh-a.dsh}),l=DEST.filter(function(d){return d.dsh<-.002}).sort(function(a,b){return a.dsh-b.dsh}),nw=DEST.filter(function(d){return d.isNew}),rt=DEST.filter(function(d){return d.var<-.03});function ls(a){return a.slice(0,5).map(function(d){return'<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid var(--line2)"><span>'+esc(d.n)+'</span><span class="num '+(d.dsh>0?'up':'dn')+'">'+pp(d.dsh)+'</span></div>'}).join('')||'<span class="muted small">—</span>'}
+ return'<div class="g g2" style="gap:16px"><div><div class="lbl up">Ganho de participação</div>'+ls(g)+'</div><div><div class="lbl dn">Perda de participação</div>'+ls(l)+'</div><div><div class="lbl" style="color:var(--info)">Novos mercados</div>'+ls(nw)+'</div><div><div class="lbl" style="color:var(--warn)">Mercados em retração</div>'+ls(rt)+'</div></div>'}
+
+PAGES.imports=function(){var h=ph('Trade · Imports','BRAZIL WOOD IMPORTS','Importações brasileiras do capítulo 44 por produto e origem.',perSeg());
+ h+='<div class="status">'+kpi('Valor FOB (12m)','US$ 310 mi',-.018,'comex','Importações',1,'a/a')+kpi('Volume','212 mil m³',-.024,'comex','Volume importado',1,'a/a')+kpi('Preço médio','US$ 1.462/m³',.006,'comex','Preço médio importação',1,'a/a')+'</div>';
+ h+='<div class="g g2">'+panel('Por origem',barsH([['China',96,.04],['Paraguai',41,.02],['Chile',33,-.06],['EUA',28,-.03],['Argentina',21,.01],['Uruguai',18,-.04],['Alemanha',12,.05]],{pre:'US$ ',suf:' mi',d:0}),{r:srcBtn('comex','Importações por origem')})+panel('Por produto',barsH([['Painéis MDF/HDF (4411)',88,-.03],['Madeira serrada (4407)',64,-.01],['Compensado (4412)',52,.02],['Lâminas decorativas (4408)',38,.04],['Aglomerado (4410)',31,-.05]],{pre:'US$ ',suf:' mi',d:0}),{r:srcBtn('comex','Importações por produto')})+'</div>';
+ h+=panel('Histórico',C('line',{series:[{n:'Importações (mil m³)',v:cut(PRODUCTS.plywood.sImp)}],labels:cut(LABELS)},{h:200}));
+ return h};
+
+PAGES.tradeflow=function(){var h=ph('Trade · Trade Flow','GLOBAL TRADE FLOW','Brasil → porto → país → mercado. Volume em mil m³ (12m).');
+ var cols=[['PR','SC','RS','SP'],['Paranaguá','Itajaí/Itapoá','S. Francisco do Sul','Rio Grande','Santos'],['EUA','México','Europa','América do Sul','Ásia','Oriente Médio / África','Caribe']];
+ var links=[['PR','Paranaguá',260],['PR','S. Francisco do Sul',30],['SC','Itajaí/Itapoá',210],['SC','S. Francisco do Sul',75],['RS','Rio Grande',85],['SP','Santos',60],['PR','Santos',8],
+  ['Paranaguá','EUA',118],['Paranaguá','Europa',62],['Paranaguá','México',38],['Paranaguá','Ásia',24],['Paranaguá','Oriente Médio / África',18],
+  ['Itajaí/Itapoá','EUA',82],['Itajaí/Itapoá','Europa',58],['Itajaí/Itapoá','México',40],['Itajaí/Itapoá','Caribe',30],
+  ['S. Francisco do Sul','EUA',48],['S. Francisco do Sul','Europa',32],['S. Francisco do Sul','Oriente Médio / África',25],
+  ['Rio Grande','América do Sul',55],['Rio Grande','Europa',30],['Santos','Ásia',28],['Santos','Oriente Médio / África',20],['Santos','América do Sul',20]];
+ h+=panel('Fluxo UF de origem → porto → região de destino',C('sankey',{cols:cols,links:links},{h:420}),{r:srcBtn('comex','Trade flow (URF de embarque)'),sub:'Comex Stat informa UF de origem e URF de despacho'});
+ h+=panel('Rotas principais','<div class="tw"><table class="t"><thead><tr><th>Origem</th><th>Porto</th><th>Destino</th><th>Produto</th><th class="n">Volume</th><th class="n">Valor (US$ mi)</th><th class="n">Var. a/a</th></tr></thead><tbody>'+[['PR','Paranaguá','Houston (EUA)','Compensado pinus',118,44.1,-.09],['SC','Itajaí/Itapoá','Veracruz (MX)','Compensado fenólico',40,21.8,.24],['SC','Itajaí/Itapoá','Antuérpia (BE)','Compensado pinus',58,22.3,.12],['PR','Paranaguá','Roterdã (NL)','Lâminas / LVL',62,19.7,.09],['RS','Rio Grande','Buenos Aires (AR)','Compensado',55,14.2,-.06],['SC','S. Francisco do Sul','Jeddah (SA)','Compensado',25,11.9,.31]].map(function(r){return'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td class="n">'+r[4]+'</td><td class="n">'+fmt(r[5],1)+'</td><td class="n '+tcls(r[6])+'">'+pct(r[6])+'</td></tr>'}).join('')+'</tbody></table></div>',{flush:true});
+ return h};
+
+var NQ={q:'',p:'',c:'',y:'2026',m:''};
+PAGES.ncm=function(){var h=ph('Trade · NCM Intelligence','NCM INTELLIGENCE','Banco de NCMs relacionados aos produtos da cadeia. Pesquise por NCM, produto, país, ano e mês.');
+ var prods=[];NCM.forEach(function(n){if(prods.indexOf(n[2])<0)prods.push(n[2])});
+ h+=panel('Pesquisa','<form id="nf" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end"><label class="small">NCM / texto<br><input type="search" id="nq" value="'+esc(NQ.q)+'" placeholder="ex.: 4412.39"></label><label class="small">Produto<br><select id="np"><option value="">Todos</option>'+prods.map(function(p){return'<option'+(NQ.p===p?' selected':'')+'>'+p+'</option>'}).join('')+'</select></label><label class="small">País<br><select id="nc"><option value="">Todos</option>'+DEST.map(function(d){return'<option value="'+d.c+'"'+(NQ.c===d.c?' selected':'')+'>'+esc(d.n)+'</option>'}).join('')+'</select></label><label class="small">Ano<br><select id="ny">'+['2026','2025','2024','2023','2022'].map(function(y){return'<option'+(NQ.y===y?' selected':'')+'>'+y+'</option>'}).join('')+'</select></label><label class="small">Mês<br><select id="nm"><option value="">Todos</option>'+MN.map(function(m,i){return'<option value="'+(i+1)+'"'+(NQ.m==String(i+1)?' selected':'')+'>'+m+'</option>'}).join('')+'</select></label></form>',{nodemo:true});
+ var list=NCM.filter(function(n){return(!NQ.q||(n[0]+' '+n[1]).toLowerCase().indexOf(NQ.q.toLowerCase())>=0)&&(!NQ.p||n[2]===NQ.p)});
+ var cn=NQ.c?DEST.filter(function(d){return d.c===NQ.c})[0]:null;
+ h+=panel('Resultados · '+list.length+' NCM','<div class="tw"><table class="t"><thead><tr><th>SH / NCM</th><th>Descrição</th><th>Produto</th><th class="n">Valor (US$ mil)</th><th class="n">Peso (t)</th><th class="n">m³</th><th class="n">US$/m³</th><th>Fonte</th></tr></thead><tbody>'+list.map(function(n){var k=n[0]+NQ.c+NQ.y+NQ.m;var base=(n[2]==='Compensados'?60000:n[2]==='Madeira serrada'?40000:12000)*(NQ.m?1/12:1)*(cn?cn.sh:1)*(0.3+hash(k)*1.4)*(NQ.y==='2026'?8/12:1);var pr=280+hash(k+'x')*420;var m3=base*1000/pr;return'<tr><td class="mono">'+n[0]+'</td><td>'+esc(n[1])+'</td><td class="small">'+n[2]+'</td><td class="n">'+fmt(base,0)+'</td><td class="n">'+fmt(m3*.55,0)+'</td><td class="n">'+fmt(m3,0)+'</td><td class="n">'+fmt(pr,0)+'</td><td>'+srcBtn('comex','NCM '+n[0])+'</td></tr>'}).join('')+'</tbody></table></div><p class="small muted" style="padding:10px 14px;margin:0">Códigos em nível SH 6 dígitos. Desdobramentos NCM de 8 dígitos a mapear e validar contra a tabela NCM vigente antes da Fase 3. '+(NQ.y==='2026'?'2026 = jan–ago.':'')+'</p>',{flush:true});
+ return h};
+
+PAGES.competitors=function(){var h=ph('Trade · Competitors','GLOBAL COMPETITIVE LANDSCAPE','Países concorrentes identificados pelos dados de comércio de compensado (SH 4412) — não pré-definidos.');
+ var s=COMP.slice().sort(function(a,b){return b.v-a.v});
+ h+=panel('Exportadores mundiais de compensado','<div class="tw"><table class="t"><thead><tr><th>#</th><th>País</th><th class="n">Valor (US$ bi)</th><th class="n">Participação</th><th class="n">Crescimento a/a</th><th class="n">Preço médio (US$/m³)</th><th>Principais destinos</th></tr></thead><tbody>'+s.map(function(c,i){return'<tr'+(c.n==='Brasil'?' style="background:color-mix(in srgb,var(--forest) 10%,transparent)"':'')+'><td class="n">'+(i+1)+'</td><td><b>'+c.n+'</b></td><td class="n">'+fmt(c.v,2)+'</td><td class="n">'+pct(c.sh).replace('+','')+'</td><td class="n '+tcls(c.g)+'">'+pct(c.g)+'</td><td class="n">'+fmt(c.pr,0)+'</td><td class="small muted">'+esc(c.dest)+'</td></tr>'}).join('')+'</tbody></table></div>',{flush:true,r:srcBtn('comtrade','Exportadores mundiais')});
+ h+='<div class="g g2">'+panel('Crescimento vs participação',barsH(s.map(function(c){return[c.n,c.g*100,null]}).sort(function(a,b){return b[1]-a[1]}),{suf:'%',d:1}),{sub:'crescimento a/a (%)'})+panel('Leitura',"<p style='margin:0 0 8px'><span class='ep fato'>DADO</span>Brasil é o 3º exportador no ranking DEMO, com preço médio abaixo de Indonésia e Malásia.</p><p style='margin:0 0 8px'><span class='ep ana'>ANÁLISE</span>Vietnã e Uruguai crescem acima do Brasil; China mantém escala dominante.</p><p style='margin:0'><span class='ep hip'>HIPÓTESE</span>Restrições à oferta russa podem abrir espaço para pinus/eucalipto na Europa — requer confirmação com dados de importação da UE por origem.</p>")+'</div>';
+ return h};
+
+PAGES.prices=function(){var h=ph('Prices','WOOD PRICE INTELLIGENCE','Preço atual vs. média histórica (5 anos) vs. período anterior. Monitorado apenas quando houver fonte confiável.');
+ h+=panel('Painel de preços','<div class="tw"><table class="t"><thead><tr><th>Item</th><th>Unidade</th><th class="n">Atual</th><th class="n">Anterior</th><th class="n">Δ m/m</th><th class="n">Média 5a</th><th class="n">vs média</th><th>Posição</th><th>Fonte</th></tr></thead><tbody>'+PRICES.map(function(p){var d=p[2]/p[3]-1,dv=p[2]/p[4]-1;var w=Math.max(-1,Math.min(1,dv/.2));return'<tr><td>'+esc(p[0])+'</td><td class="small muted">'+p[1]+'</td><td class="n"><b>'+fmt(p[2],p[2]<20?2:0)+'</b></td><td class="n">'+fmt(p[3],p[3]<20?2:0)+'</td><td class="n '+tcls(d)+'">'+pct(d)+'</td><td class="n">'+fmt(p[4],p[4]<20?2:0)+'</td><td class="n">'+pct(dv)+'</td><td style="min-width:110px"><svg viewBox="0 0 100 10" style="width:100px;height:10px"><rect x="0" y="4" width="100" height="2" fill="var(--line)"/><line x1="50" x2="50" y1="0" y2="10" stroke="var(--muted)"/><circle cx="'+(50+w*46)+'" cy="5" r="4" fill="var(--copper)"/></svg></td><td>'+(p[5]==='internal'?'<span class="chip warn">DADO INTERNO FUTURO</span>':srcBtn(p[5],p[0]))+'</td></tr>'}).join('')+'</tbody></table></div><p class="small muted" style="padding:10px 14px;margin:0">Posição: ponto à direita = acima da média de 5 anos (escala ±20%). Resinas e energia dependem de cotações de fornecedores — integração prevista via ERP.</p>',{flush:true});
+ h+='<div class="g g2">'+panel('Compensado BR — FOB (US$/m³)',C('line',{series:[{n:'Preço FOB',v:cut(P.PLYWOOD.s)}],labels:cut(LABELS)},{h:210,d:0,ref:mean(P.PLYWOOD.s.slice(-60)),refL:'média 5a'}),{r:perSeg()})+panel('Wood Price Index',C('line',{series:[{n:'Índice',v:cut(P.WOOD.s)}],labels:cut(LABELS)},{h:210,ref:mean(P.WOOD.s.slice(-60)),refL:'média 5a'}),{r:srcBtn('itto','Wood Price Index')})+'</div>';
+ return h};
+
+PAGES.logistics=function(){var h=ph('Logistics','GLOBAL LOGISTICS','Frete marítimo, contêiner, portos, congestionamento, rotas, tempo de trânsito e combustível.',perSeg());
+ var fe=gen(2600,-.001,.08),fu=gen(2300,-.001,.08),fa=gen(3100,-.002,.1),br=gen(62,.001,.07);
+ h+='<div class="status">'+kpi('Frete BR → EUA','US$ '+fmt(last(fe),0)+'/FEU',chg(fe),'drewry','Frete BR→EUA',-1,'m/m')+kpi('Frete BR → N. Europa','US$ '+fmt(last(fu),0)+'/FEU',chg(fu),'drewry','Frete BR→Europa',-1,'m/m')+kpi('Frete BR → Ásia','US$ '+fmt(last(fa),0)+'/FEU',chg(fa),'fbx','Frete BR→Ásia',-1,'m/m')+kpi('Disponibilidade contêiner','índice 0,94',-.02,'fbx','Disponibilidade de contêiner',1,'m/m')+kpi('Brent','US$ '+fmt(last(br),1)+'/bbl',chg(br),'eia','Brent',-1,'m/m')+'</div>';
+ h+=panel('Frete por rota (US$/FEU)',C('line',{series:[{n:'BR → EUA costa leste',v:cut(fe)},{n:'BR → Norte da Europa',v:cut(fu)},{n:'BR → Ásia',v:cut(fa)}],labels:cut(LABELS)},{h:240,area:false,d:0}),{r:srcBtn('drewry','Frete por rota')});
+ h+='<div class="g g2">'+panel('Portos — congestionamento','<div class="tw"><table class="t"><thead><tr><th>Porto</th><th class="n">Espera (dias)</th><th class="n">Δ m/m</th><th>Status</th></tr></thead><tbody>'+[['Paranaguá (BR)',1.8,-.2],['Itajaí/Itapoá (BR)',1.2,.1],['S. Francisco do Sul (BR)',2.4,.6],['Rio Grande (BR)',.9,0],['Houston (US)',1.1,-.3],['Savannah (US)',2.2,.4],['Roterdã (NL)',1.6,.2],['Antuérpia (BE)',2.8,.9],['Veracruz (MX)',1.4,-.1],['Xangai (CN)',.8,-.2]].map(function(r){var s=r[1]>2.5?['ALTO','neg']:r[1]>1.5?['MÉDIO','warn']:['NORMAL','pos'];return'<tr><td>'+r[0]+'</td><td class="n">'+fmt(r[1],1)+'</td><td class="n '+(r[2]>0?'dn':r[2]<0?'up':'fl')+'">'+(r[2]>0?'+':'')+fmt(r[2],1)+'</td><td><span class="chip '+s[1]+'">'+s[0]+'</span></td></tr>'}).join('')+'</tbody></table></div>',{flush:true,r:srcBtn('antaq','Congestionamento portuário')})+
+  panel('Rotas — Brasil → porto → destino','<div class="tw"><table class="t"><thead><tr><th>Rota</th><th class="n">Trânsito (dias)</th><th class="n">Frete US$/FEU</th><th>Risco</th></tr></thead><tbody>'+[['Paranaguá → Houston',22,2350,'MÉDIO'],['Itajaí → Savannah',19,2280,'BAIXO'],['Itajaí → Veracruz',24,2050,'BAIXO'],['Paranaguá → Roterdã',21,2100,'MÉDIO'],['S. F. do Sul → Antuérpia',20,2140,'MÉDIO'],['Santos → Xangai',38,3050,'MÉDIO'],['S. F. do Sul → Jeddah',31,2890,'ALTO'],['Rio Grande → Buenos Aires',4,780,'BAIXO']].map(function(r){return'<tr><td>'+r[0]+'</td><td class="n">'+r[1]+'</td><td class="n">'+fmt(r[2],0)+'</td><td><span class="chip '+(r[3]==='ALTO'?'neg':r[3]==='MÉDIO'?'warn':'pos')+'">'+r[3]+'</span></td></tr>'}).join('')+'</tbody></table></div>',{flush:true,r:srcBtn('drewry','Rotas')})+'</div>';
+ h+=panel('Mapa de rotas',C('map',{items:DEST.slice(0,12)}),{});
+ return h};
+
+PAGES.fx=function(){var h=ph('FX','FX INTELLIGENCE','Câmbio das moedas relevantes ao exportador: valor, variação, histórico e volatilidade — e sua relação com exportações.',perSeg());
+ h+=panel('Moedas','<div class="tw"><table class="t"><thead><tr><th>Par</th><th class="n">Último</th><th class="n">Δ m/m</th><th class="n">Δ 12m</th><th class="n">Vol. anual. 12m</th><th>Histórico 24m</th><th>Fonte</th></tr></thead><tbody>'+FX.map(function(f){var s=f[1];var r=[];for(var i=N-12;i<N;i++)r.push(Math.log(s[i]/s[i-1]));var v=sd(r)*Math.sqrt(12);return'<tr><td><b>'+f[0]+'</b></td><td class="n">'+fmt(last(s),3)+'</td><td class="n '+tcls(chg(s))+'">'+pct(chg(s))+'</td><td class="n '+tcls(chg(s,12))+'">'+pct(chg(s,12))+'</td><td class="n">'+pct(v).replace('+','')+'</td><td style="width:130px">'+spark(s,tcls(chg(s)),120,24)+'</td><td>'+srcBtn(f[2],f[0])+'</td></tr>'}).join('')+'</tbody></table></div>',{flush:true});
+ var usd=P['USD/BRL'].s,ex=PRODUCTS.plywood.sExp;var pts=[];for(var i=N-60;i<N;i++)pts.push([usd[i],ex[i]]);var rr=corr(pts);
+ h+='<div class="g g2">'+panel('USD/BRL e EUR/BRL',C('line',{series:[{n:'USD/BRL',v:cut(usd)},{n:'EUR/BRL',v:cut(FX[1][1])}],labels:cut(LABELS)},{h:220,area:false,d:3}),{r:srcBtn('bcb','Câmbio')})+panel('Câmbio × exportações (60 meses)',C('scatter',{pts:pts},{xl:'USD/BRL',yl:'Exportações compensado (mil m³)'})+'<p class="small" style="margin:8px 0 0"><span class="ep ind">INDICADOR</span>Correlação de Pearson r = <b class="num">'+fmt(rr,2)+'</b>. <span class="ep hip">ATENÇÃO</span>Correlação não implica causalidade — preços, demanda externa e frete também variam no período.</p>')+'</div>';
+ return h};
+function corr(p){var xs=p.map(function(a){return a[0]}),ys=p.map(function(a){return a[1]});var mx=mean(xs),my=mean(ys),s=0,sx=0,sy=0;p.forEach(function(a){s+=(a[0]-mx)*(a[1]-my);sx+=(a[0]-mx)*(a[0]-mx);sy+=(a[1]-my)*(a[1]-my)});return s/Math.sqrt(sx*sy)}
+
+PAGES.macro=function(){var h=ph('Macro','GLOBAL MACRO','Juros, inflação, PIB, produção industrial, desemprego, construção e confiança nos países prioritários.');
+ h+=panel('Painel macro — último dado','<div class="tw"><table class="t"><thead><tr><th>País / região</th>'+MACRO.cols.map(function(c,i){return'<th class="n">'+c+'<br>'+srcBtn(MACRO.src[i],c)+'</th>'}).join('')+'</tr></thead><tbody>'+MACRO.rows.map(function(r){return'<tr><td><b>'+r[0]+'</b></td>'+r[1].map(function(v,i){var col=MACRO.cols[i];var vals=MACRO.rows.map(function(x){return x[1][i]}).filter(function(x){return x<30});var m=mean(vals),s=sd(vals)||1;var z=Math.max(-1.5,Math.min(1.5,(Math.min(v,30)-m)/s))*MACRO.good[i];var c=z>0?'var(--pos)':'var(--neg)';return'<td class="n" style="background:color-mix(in srgb,'+c+' '+Math.round(Math.abs(z)*14)+'%,transparent)">'+fmt(v,1)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div><p class="small muted" style="padding:10px 14px;margin:0">Cor = posição relativa entre os países da tabela (verde = mais favorável à demanda). Argentina excluída do cálculo de cor para juros/inflação por escala.</p>',{flush:true});
+ h+='<div class="g g2">'+panel('Construção — índice composto',C('line',{series:[{n:'Construção',v:cut(P.CONSTRUCTION.s)}],labels:cut(LABELS)},{h:200}),{r:perSeg()})+panel('EUA — housing starts (mil/ano)',C('line',{series:[{n:'Housing starts',v:cut(P.USA.s)}],labels:cut(LABELS)},{h:200,d:0}),{r:srcBtn('fred','Housing starts')})+'</div>';
+ return h};
+
+var GCAT='';
+PAGES.geopolitics=function(){var h=ph('Geopolitics','GEOPOLITICAL WATCH','Eventos que podem afetar comércio, tarifas, sanções, portos, rotas, energia e câmbio. Impacto só é afirmado com evidência.');
+ h+='<div class="pill-row" id="gcat"><button data-c="" class="'+(GCAT===''?'on':'')+'">Todas</button>'+CATS.map(function(c){return'<button data-c="'+c+'" class="'+(GCAT===c?'on':'')+'">'+c+'</button>'}).join('')+'</div>';
+ var ev=EVENTS.filter(function(e){return!GCAT||e.cat===GCAT});
+ h+=panel('Geopolitical Impact Matrix','<div class="tw"><table class="t"><thead><tr><th>Evento</th><th>Data</th><th>País</th><th>Produto</th><th>Rota</th><th>Impacto potencial</th><th>Confiança</th><th>Evidência</th><th>Fonte</th></tr></thead><tbody>'+ev.map(function(e){return'<tr><td><span class="chip">'+e.cat+'</span><br>'+esc(e.t)+'</td><td class="mono small">'+e.dt.split('-').reverse().join('/')+'</td><td>'+esc(e.c)+'</td><td class="small">'+esc(e.prod)+'</td><td class="small">'+esc(e.route)+'</td><td><span class="chip '+(e.imp==='ALTO'?'solid-neg':e.imp==='MÉDIO'?'solid-warn':'info')+'">'+e.imp+'</span></td><td><span class="chip">'+e.conf+'</span></td><td class="small muted">'+esc(e.ev)+'</td><td>'+srcBtn('news',e.t)+'</td></tr>'}).join('')+'</tbody></table></div>',{flush:true,sub:'evento → país → produto → rota → impacto potencial'});
+ var e=EVENTS[0];h+=panel('Event → Market · '+e.id,'<div class="chain" style="margin-bottom:12px"><span class="n">'+esc('Mudança tarifária EUA')+'</span><span class="a">→</span><span class="n">Compensado BR</span><span class="a">→</span><span class="n">Exportação</span><span class="a">→</span><span class="n">Mercado americano</span><span class="a">→</span><span class="n" style="background:var(--neg);color:#fff;border-color:transparent">Impacto potencial ALTO</span></div><div class="g g2"><div>'+C('line',{series:[{n:'Exportações BR → EUA (US$ mi)',v:gen(17,-.002,.08).slice(-12)}],labels:LABELS.slice(-12)},{h:180})+'<p class="small muted" style="margin:4px 0 0">Antes/depois do evento (15/09/2026): dado pós-evento ainda não disponível.</p></div><div class="small"><p style="margin:0 0 8px"><span class="ep fato">FATO</span>Consulta pública aberta em 15/09 (cenário DEMO).</p><p style="margin:0 0 8px"><span class="ep ind">INDICADOR</span>EUA = '+pct(DEST[0].sh).replace('+','')+' das exportações; importações EUA de compensado '+pct(chg(P.USA.s))+' m/m.</p><p style="margin:0 0 8px"><span class="ep hip">HIPÓTESE</span>Antecipação de compras pode elevar volumes no curto prazo e reduzi-los após a vigência.</p><p style="margin:0"><span class="ep imp">IMPACTO POTENCIAL</span>ALTO para 4412.39 — <b>EVIDÊNCIA INSUFICIENTE</b> para quantificar até publicação da alíquota.</p></div></div>');
+ return h};
+
+var NCLS='';
+PAGES.news=function(){var h=ph('News','MARKET NEWS','News Impact Engine — cada notícia é classificada por tipo de impacto para a CELPLAC.');
+ h+='<div class="pill-row" id="ncls"><button data-c="" class="'+(NCLS===''?'on':'')+'">Todas</button>'+Object.keys(CLS).map(function(k){return'<button data-c="'+k+'" class="'+(NCLS===k?'on':'')+'">'+CLS[k][0]+'</button>'}).join('')+'</div>';
+ h+='<div class="g g4">'+Object.keys(CLS).map(function(k){var n=NEWS.filter(function(x){return x.cls===k}).length;return'<div class="panel"><div class="bd"><div class="lbl">'+CLS[k][0]+'</div><div class="num" style="font-size:26px">'+n+'</div><div class="small muted">'+({direto:'Afeta produto/mercado da CELPLAC',indireto:'Afeta cadeia, logística ou demanda',contexto:'Entendimento de mercado',monitor:'Evento que pode evoluir'})[k]+'</div></div></div>'}).join('')+'</div>';
+ var ls=NEWS.filter(function(n){return!NCLS||n.cls===NCLS});
+ h+=panel('Timeline','<div class="tw"><table class="t"><thead><tr><th>Data</th><th>Título</th><th>Classificação</th><th>Categoria</th><th>País</th><th>Produtos afetados</th><th>Impacto potencial</th><th>Fonte / link</th></tr></thead><tbody>'+ls.map(function(n){return'<tr><td class="mono small">'+n.dt.split('-').reverse().join('/')+'</td><td>'+esc(n.t)+'<div class="small muted">Resumo: '+esc(n.t)+' — texto simulado para demonstração.</div></td><td><span class="chip '+CLS[n.cls][1]+'">'+CLS[n.cls][0]+'</span></td><td class="small">'+n.cat+'</td><td class="small">'+esc(n.c)+'</td><td class="small">'+esc(n.prod)+'</td><td><span class="chip">'+n.imp+'</span></td><td>'+srcBtn('news',n.t)+'<div class="small muted">link: —</div></td></tr>'}).join('')+'</tbody></table></div>',{flush:true});
+ return h};
+
+PAGES.signals=function(){var h=ph('Market Signals','EARLY WARNING','Combinações de sinais antecedentes. Resultado é SINAL, TENDÊNCIA ou INDICAÇÃO — nunca previsão garantida.');
+ h+=EW.rules.map(function(r,ri){return panel(r.n,'<div class="chain" style="margin-bottom:12px">'+r.c.map(function(c,i){return(i?'<span class="a">+</span>':'')+'<span class="n">'+c+'</span>'}).join('')+'<span class="a">→</span><span class="n" style="border-color:var(--'+(r.tone)+');color:var(--'+r.tone+')">'+r.n+'</span></div><div class="tw"><table class="t"><thead><tr><th>Mercado</th>'+r.c.map(function(c){return'<th>'+c+'</th>'}).join('')+'<th>Condições</th><th>Resultado</th></tr></thead><tbody>'+Object.keys(EW.m).map(function(m){var v=EW.m[m][ri];var s=v.reduce(function(a,b){return a+b},0);return'<tr><td><b>'+m+'</b></td>'+v.map(function(x){return'<td>'+(x?'<span class="chip '+(r.tone==='pos'?'pos':r.tone==='neg'?'neg':'warn')+'">● SIM</span>':'<span class="muted small">○ não</span>')+'</td>'}).join('')+'<td class="n">'+s+'/4</td><td>'+(s===4?'<span class="chip solid-'+(r.tone==='pos'?'pos':r.tone==='neg'?'neg':'warn')+'">SINAL ATIVO</span>':s===3?'<span class="chip '+(r.tone==='pos'?'pos':r.tone==='neg'?'neg':'warn')+'">INDICAÇÃO</span>':'<span class="chip">SEM SINAL</span>')+'</td></tr>'}).join('')+'</tbody></table></div>',{flush:false})}).join('');
+ h+=panel('Market Cycle',C('cycle',CYCLE)+'<div class="tw" style="margin-top:10px"><table class="t"><thead><tr><th>Mercado</th><th class="n">Nível vs média 5a</th><th class="n">Momentum 6m</th><th>Fase</th></tr></thead><tbody>'+CYCLE.map(function(c){return'<tr><td>'+c.k+'</td><td class="n '+(c.lvl>=0?'up':'dn')+'">'+pct(c.lvl)+'</td><td class="n '+(c.mom>0?'up':'dn')+'">'+pct(c.mom)+'</td><td><b>'+c.ph+'</b></td></tr>'}).join('')+'</tbody></table></div><p class="small muted">Regra: nível ≥ média e momentum > +1% → Expansão; nível ≥ média e |momentum| ≤ 1% → Pico; nível ≥ média e momentum < −1% → Desaceleração; nível < média e momentum ≤ +1% → Contração; nível < média e momentum > +1% → Recuperação. Limiares configuráveis em Settings (Fase 4).</p>');
+ return h};
+
+PAGES.opportunity=function(){var h=ph('Opportunity Radar','OPPORTUNITY RADAR','Mercados com importações crescentes, participação brasileira em alta e concorrência aparente em queda. Um sinal não é uma oportunidade comercial garantida.');
+ var mx=OPP.filter(function(o){return o.d.c==='MX'})[0];
+ h+=panel('Exemplo · México','<div class="chain"><span class="n">Importações ↑ '+pct(mx.imp)+'</span><span class="a">+</span><span class="n">Brasil ↑ '+pp(mx.br)+'</span><span class="a">+</span><span class="n">Concorrência ↓ '+pct(mx.comp)+'</span><span class="a">→</span><span class="n" style="background:var(--pos);color:#fff;border-color:transparent">OPPORTUNITY SIGNAL</span></div>');
+ h+=panel('Radar de mercados',oppTable(),{flush:true,sub:'clique para abrir o perfil do país'});
+ h+='<div class="g g2">'+panel('Produtos com demanda crescente',barsH([['LVL (4412.4x)',12.1,null],['Compensado fenólico',9.4,null],['Compensado não conífera (eucalipto)',7.2,null],['Lâminas coníferas',1.8,null],['Compensado face tropical',-5.2,null]],{suf:'% a/a',d:1}),{r:srcBtn('comtrade','Demanda por produto')})+panel('Mudanças de fornecedores',"<p class='small' style='margin:0 0 8px'><span class='ep ind'>INDICADOR</span>Participação russa em importações de compensado na UE em queda contínua (DEMO).</p><p class='small' style='margin:0 0 8px'><span class='ep ind'>INDICADOR</span>China redireciona volumes para México e Oriente Médio (DEMO).</p><p class='small' style='margin:0'><span class='ep hip'>HIPÓTESE</span>Espaço para compensado de coníferas/eucalipto em aplicações industriais na Europa — validar com dados Eurostat por origem.</p>")+'</div>';
+ return h};
+
+PAGES.risk=function(){var h=ph('Risk Radar','RISK RADAR','Concentração, tarifas, câmbio, frete, energia, matéria-prima, conflitos, sanções, demanda e dependência logística. Escala 0–5.');
+ h+='<div class="g g-7-5">'+panel('Radar',C('radar',RISK),{})+panel('Detalhe',RISK.map(function(r){return'<div class="li"><span class="sev" style="background:'+(r[1]===0?'var(--line)':r[1]>=3.5?'var(--neg)':r[1]>=2.5?'var(--warn)':'var(--pos)')+'"></span><div style="flex:1"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+r[0]+'</b><span class="num">'+(r[1]===0?'n/d':fmt(r[1],1))+'</span></div><div class="small muted">'+esc(r[2])+'</div></div></div>'}).join(''),{flush:true})+'</div>';
+ return h};
+
+var WEIGHTS=null;var IDXC=[['Demanda global (construção)',P.CONSTRUCTION.s],['Plywood (preço)',P.PLYWOOD.s],['Veneer (preço)',P.VENEER.s],['Exportações brasileiras',PRODUCTS.plywood.sExp],['Importações dos destinos',P.EUROPE.s],['Logística (frete, invertido)',P.SHIPPING.s.map(function(v){return 1/v})],['Câmbio (USD/BRL)',P['USD/BRL'].s],['Preços de madeira',P.WOOD.s],['Produção industrial',P.CHINA.s],['Implementos rodoviários',P.TRUCKING.s]];
+function computeIndex(){if(!WEIGHTS)WEIGHTS=IDXC.map(function(){return 10});var tw=WEIGHTS.reduce(function(a,b){return a+b},0)||1;var zs=IDXC.map(function(c){var s=c[1],m=mean(s),d=sd(s)||1;return s.map(function(v){return(v-m)/d})});var out=[];for(var i=0;i<N;i++){var v=0;zs.forEach(function(z,k){v+=z[i]*WEIGHTS[k]});out.push(100+10*v/tw)}return out}
+PAGES.index=function(){var h=ph('Market Index','CELPLAC GLOBAL WOOD MARKET INDEX','Índice composto configurável: cada componente é padronizado (z-score) e ponderado. Pesos iniciais iguais — sem pesos definitivos antes de estudo estatístico.',perSeg());
+ var idx=computeIndex();
+ h+='<div class="g g-7-5">'+panel('Índice (base 100 = média histórica)',C('line',{series:[{n:'CELPLAC GWMI',v:cut(idx)}],labels:cut(LABELS)},{h:260,ref:100,refL:'100 = média'})+'<p class="small" style="margin:8px 0 0"><span class="ep ind">INDICADOR</span>Último: <b class="num">'+fmt(last(idx),1)+'</b> ('+pct(idx[N-1]/idx[N-2]-1)+' m/m). Leitura &gt;100 = mercado acima da média histórica nos componentes selecionados.</p>')+
+  panel('Pesos dos componentes','<div style="display:flex;flex-direction:column;gap:8px">'+IDXC.map(function(c,i){return'<div class="range"><label for="w'+i+'">'+c[0]+'</label><input type="range" id="w'+i+'" min="0" max="30" value="'+WEIGHTS[i]+'" data-w="'+i+'"><span class="num" id="wv'+i+'">'+WEIGHTS[i]+'</span></div>'}).join('')+'<div style="display:flex;gap:8px;margin-top:6px"><button class="x" id="wreset" style="align-self:auto">Pesos iguais</button></div></div>',{nodemo:true})+'</div>';
+ return h};
+
+PAGES.exposure=function(){var h=ph('CELPLAC · Fase 5','CELPLAC MARKET EXPOSURE','Relaciona dados externos com a exposição da empresa: concentração de mercado e geográfica, exposição cambial, logística e tarifária.');
+ h+=panel('Cadeia de exposição','<div class="chain"><span class="n">Produto CELPLAC</span><span class="a">→</span><span class="n">Mercado</span><span class="a">→</span><span class="n">País</span><span class="a">→</span><span class="n">Cliente</span><span class="a">→</span><span class="n">Moeda</span><span class="a">→</span><span class="n">Rota</span><span class="a">→</span><span class="n">Risco</span></div>',{nodemo:true});
+ h+='<div class="g g3">'+['Concentração de mercado','Concentração geográfica','Exposição cambial','Exposição logística','Exposição tarifária','Concentração de clientes'].map(function(t){return panel(t,'<div class="unavail">DADO INDISPONÍVEL<br>requer integração ERP CELPLAC</div>',{nodemo:true,r:srcBtn('internal',t)})}).join('')+'</div>';
+ return h};
+PAGES.vs=function(){var h=ph('CELPLAC · Fase 5','MARKET VS CELPLAC','Comparação do desempenho da CELPLAC com o mercado por produto, país, cliente, região e período.');
+ var rows=[['Compensado pinus — EUA',chg(DEST[0].v?[DEST[0].v0,DEST[0].v]:[1,1])],['Compensado fenólico — México',.24],['Compensado — Europa',.12],['Lâminas — total',.014],['LVL — total',.121]];
+ h+=panel('Mercado vs CELPLAC','<div class="tw"><table class="t"><thead><tr><th>Recorte</th><th class="n">Mercado (a/a)</th><th class="n">CELPLAC (a/a)</th><th>Diferença</th></tr></thead><tbody>'+rows.map(function(r){return'<tr><td>'+r[0]+'</td><td class="n '+tcls(r[1])+'">'+pct(r[1])+' '+DEMO+'</td><td class="n muted">DADO INDISPONÍVEL</td><td class="small muted">aguarda ERP</td></tr>'}).join('')+'</tbody></table></div>',{flush:true,sub:'filtros previstos: produto · país · cliente · região · período'});
+ return h};
+PAGES.ai=function(){var h=ph('CELPLAC · Fase 6','CELPLAC MARKET AI','Analista de mercado conversacional sobre os dados da plataforma — sempre com fontes, período, separação entre fato e interpretação e indicação de incertezas.');
+ h+=panel('Perguntas suportadas','<div class="pill-row">'+['Como está o mercado de compensados nos Estados Unidos?','Quais mercados estão aumentando importações?','Quais países reduziram compras do Brasil?','Quais eventos geopolíticos podem afetar nossas exportações?','Quais produtos apresentam sinais de crescimento?','Como o câmbio está afetando o ambiente exportador?'].map(function(q){return'<button disabled>'+q+'</button>'}).join('')+'</div>',{nodemo:true});
+ h+=panel('Formato de resposta (protótipo estático)','<div class="qa"><div class="lbl">Pergunta</div><p style="margin:4px 0 12px">Quais países reduziram compras do Brasil?</p><div class="lbl">Resposta</div><p style="margin:4px 0"><span class="ep fato">DADO</span>Nos últimos 12 meses (set/25–ago/26), reduziram compras: '+DEST.filter(function(d){return d.var<-.03}).map(function(d){return d.n+' ('+pct(d.var)+')'}).join(', ')+'.</p><p style="margin:4px 0"><span class="ep ana">ANÁLISE</span>A queda nos EUA coincide com housing starts em baixa e revisão tarifária em curso.</p><p style="margin:4px 0"><span class="ep hip">HIPÓTESE</span>Parte da queda pode refletir antecipação de estoques em 2025 — não confirmado.</p><p style="margin:4px 0"><span class="ep imp">INCERTEZA</span>Dados de agosto sujeitos a revisão; correlação ≠ causalidade.</p><div class="small muted" style="margin-top:8px">Fontes: Comex Stat (prevista) · Período: 12m até ago/2026 · '+DEMO+'</div></div>',{nodemo:true});
+ return h};
+
+PAGES.reports=function(){var idx=computeIndex();var secs=[['Executive Summary','<span class="ep ind">INDICADOR</span>Índice CELPLAC em '+fmt(last(idx),1)+' ('+pct(idx[N-1]/idx[N-2]-1)+' m/m). Mercado global estável com preços em alta e demanda regional divergente: EUA ↓, Europa ↑, China →. <span class="ep hip">HIPÓTESE</span>A revisão tarifária nos EUA é o principal fator de incerteza do trimestre.'],['Global Wood Market','Produção mundial de painéis '+pct(chg(PRODUCTS.panels.sProd,12))+' a/a; Wood Price Index '+pct(chg(P.WOOD.s))+' m/m.'],['Brazil','Base florestal plantada em expansão, puxada por eucalipto; produção de compensados '+pct(.019)+' a/a.'],['Plywood','Preço FOB médio US$ '+fmt(last(P.PLYWOOD.s),0)+'/m³ ('+pct(chg(P.PLYWOOD.s))+' m/m).'],['Veneer','Índice de preço '+pct(chg(P.VENEER.s))+' m/m — estável.'],['Panels','OSB e LVL lideram crescimento; aglomerado estável.'],['Exports','US$ '+fmt(DEST.total,0)+' mi em 12m ('+pct(DEST.total/DEST.total0-1)+'); México '+pct(DEST[1].var)+'; EUA '+pct(DEST[0].var)+'.'],['Imports','US$ 310 mi (−1,8% a/a); China principal origem.'],['Prices','Tora de pinus +4,1% m/m — pressão de custo; frete em queda.'],['Logistics','Frete índice '+pct(chg(P.SHIPPING.s))+' m/m; congestionamento elevado em Antuérpia.'],['FX','USD/BRL '+fmt(last(P['USD/BRL'].s),3)+' ('+pct(chg(P['USD/BRL'].s))+' m/m).'],['Geopolitics','2 eventos de impacto potencial ALTO: revisão tarifária EUA (E1) e regulação de origem florestal da UE (E4).'],['News','12 notícias classificadas: 4 impacto direto, 4 indireto, 2 contexto, 2 monitoramento.'],['Opportunities','OPPORTUNITY SIGNAL em '+OPP.filter(function(o){return o.sig}).map(function(o){return o.d.n}).join(', ')+'.'],['Risks','Maiores riscos: tarifas (4,1), queda de demanda (3,6), concentração de países (3,4). Concentração de clientes: DADO INDISPONÍVEL.'],['Early Warnings','EUA: INDICAÇÃO de pressão de mercado (3/4). México: SINAL ATIVO de expansão da demanda (4/4).'],['Outlook','<span class="ep hip">HIPÓTESE</span>Sem base para previsão quantitativa. Sinais a monitorar: alíquota final nos EUA, housing starts, importações UE por origem, frete BR→Europa.']];
+ var h=ph('Reports','GLOBAL MARKET REPORT','Relatório mensal gerado automaticamente a partir dos indicadores da plataforma.','<span class="chip demo">EDIÇÃO DEMO · AGO/2026</span>');
+ h+=panel('Relatório — agosto 2026','<div class="prose">'+secs.map(function(s,i){return'<h3>'+(i+1)+'. '+s[0]+'</h3><p>'+s[1]+'</p>'}).join('')+'</div>');
+ return h};
+
+PAGES.sources=function(){var h=ph('Data Sources','DATA SOURCES','Fontes previstas para substituir os dados simulados. Nenhuma está integrada nesta versão.');
+ h+=panel('Catálogo de fontes','<div class="tw"><table class="t"><thead><tr><th>Nome</th><th>URL</th><th>Tipo</th><th>Periodicidade</th><th>Cobertura</th><th>Metodologia</th><th>Última atualização</th></tr></thead><tbody>'+Object.keys(SRC).map(function(k){var s=SRC[k];return'<tr><td><b>'+esc(s.n)+'</b></td><td class="small">'+(s.u==='—'?'—':'<a href="'+s.u+'" target="_blank" rel="noopener">'+esc(s.u.replace('https://',''))+'</a>')+'</td><td class="small">'+esc(s.t)+'</td><td class="small">'+esc(s.p)+'</td><td class="small">'+esc(s.c)+'</td><td class="small muted">'+esc(s.m)+'</td><td><span class="chip warn">NÃO INTEGRADO</span></td></tr>'}).join('')+'</tbody></table></div>',{flush:true,nodemo:true});
+ return h};
+PAGES.quality=function(){var h=ph('Data Quality','DATA QUALITY','Cobertura, atualização, faltantes, inconsistências, confiabilidade e metodologia por conjunto de dados.');
+ var rows=[['Exportações BR (Comex Stat)','comex','ALTA'],['Importações BR (Comex Stat)','comex','ALTA'],['Produção florestal (IBGE PEVS)','ibge','ALTA'],['Comércio mundial (UN Comtrade)','comtrade','MÉDIA'],['Produção mundial (FAOSTAT)','fao','MÉDIA'],['Preços tropicais (ITTO)','itto','MÉDIA'],['Frete contêiner','drewry','MÉDIA'],['Câmbio (BCB)','bcb','ALTA'],['Macro (FMI/Banco Mundial)','imf','ALTA'],['Notícias','news','BAIXA'],['Dados internos CELPLAC','internal','—']];
+ h+=panel('Qualidade por conjunto','<div class="tw"><table class="t"><thead><tr><th>Conjunto</th><th class="n">Cobertura</th><th>Atualização</th><th class="n">Faltantes</th><th class="n">Inconsistências</th><th>Confiabilidade esperada</th><th>Situação atual</th></tr></thead><tbody>'+rows.map(function(r){return'<tr><td>'+r[0]+' '+srcBtn(r[1],r[0])+'</td><td class="n">—</td><td class="small">'+esc(SRC[r[1]].p)+'</td><td class="n">—</td><td class="n">—</td><td>'+(r[2]==='—'?'<span class="chip">—</span>':'<span class="chip '+(r[2]==='ALTA'?'pos':r[2]==='MÉDIA'?'warn':'neg')+'">'+r[2]+'</span>')+'</td><td><span class="chip demo">SIMULATED</span></td></tr>'}).join('')+'</tbody></table></div><p class="small muted" style="padding:10px 14px;margin:0">Métricas de cobertura, faltantes e inconsistências são calculadas pelo pipeline de validação (Fase 2) — exibidas como “—” até lá. Confiabilidade = classificação esperada da fonte, a reavaliar com dados reais.</p>',{flush:true,nodemo:true});
+ h+=panel('Regras de validação previstas','<ul class="small" style="margin:0;padding-left:18px;line-height:1.7"><li>Completude: série mensal sem lacunas; lacuna marcada como DADO INDISPONÍVEL, nunca interpolada em silêncio.</li><li>Consistência: soma por NCM = total do capítulo; preço médio implícito (FOB/m³) dentro de faixa histórica ±3σ.</li><li>Espelhamento: exportação BR→país vs importação país←BR (Comtrade) — divergência &gt;15% sinalizada.</li><li>Revisões: fontes revisadas (Comex, Comtrade) mantêm versão do dado e data de coleta.</li><li>Unidades: conversão kg ↔ m³ por fator declarado e auditável por produto.</li></ul>',{nodemo:true});
+ return h};
+
+PAGES.settings=function(){var th='';try{th=localStorage.getItem('gwmi-theme')||''}catch(e){}var h=ph('Settings','SETTINGS','Preferências de visualização. Configurações analíticas (limiares, pesos) chegam na Fase 4.');
+ h+=panel('Aparência','<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="lbl">Tema</span><div class="seg" id="themeSeg">'+[['','Sistema'],['light','Claro'],['dark','Escuro']].map(function(t){return'<button data-t="'+t[0]+'" class="'+(th===t[0]?'on':'')+'">'+t[1]+'</button>'}).join('')+'</div></div>',{nodemo:true});
+ h+=panel('Dados','<p class="small" style="margin:0">Modo de dados: <span class="chip demo">SIMULATED DATA</span> — bloqueado nesta versão. A marcação DEMO não pode ser desativada enquanto houver qualquer dado simulado na tela.</p>',{nodemo:true});
+ return h};
+
+PAGES.blueprint=function(){var h=ph('Plataforma','BLUEPRINT TÉCNICO','Arquitetura, estrutura de pastas, componentes, modelo de dados, páginas, fontes e roadmap de integração dos dados reais.');
+ h+=panel('1 · Arquitetura','<div class="pipe">'+[['FONTES','APIs, CSV, scraping autorizado','Comex, IBGE, BCB, FAO…'],['INGESTÃO','Python connectors + Airflow/Prefect','agendamento por fonte'],['RAW','PostgreSQL schema raw / object storage','payload original + hash'],['ETL','pandas / polars','normalização, unidades'],['VALIDAÇÃO','Pandera / Great Expectations','regras de qualidade'],['DATA WAREHOUSE','PostgreSQL schema dw','fatos + dimensões'],['INDICADORES','SQL views + Python','séries derivadas'],['ANALYTICS','sinais, ciclo, índice, radar','regras versionadas'],['API','FastAPI REST','/v1/*, OpenAPI'],['DASHBOARD','React + TS + Tailwind','este frontend']].map(function(s){return'<div class="s"><b>'+s[0]+'</b><span>'+s[1]+'</span><br><i>'+s[2]+'</i></div>'}).join('')+'</div><p class="small muted" style="margin:10px 0 0">Princípio epistêmico aplicado em todas as camadas: cada registro carrega <span class="mono">kind ∈ {data, indicator, trend, analysis, hypothesis, alert}</span>, fonte, período, data de coleta e flag <span class="mono">is_simulated</span>.</p>',{nodemo:true});
+ h+=panel('2 · Estrutura de pastas','<pre class="tree">celplac-gwmi/\n├── frontend/                      React + TypeScript + Tailwind (Vite)\n│   ├── src/\n│   │   ├── app/                   router, layout, providers (React Query, tema)\n│   │   ├── pages/                 overview, world, brazil, plywood, veneer, panels, species,\n│   │   │                          exports, imports, trade-flow, ncm, competitors, prices,\n│   │   │                          logistics, fx, macro, geopolitics, news, signals,\n│   │   │                          opportunity, risk, index, exposure, vs, ai, reports,\n│   │   │                          sources, quality, settings\n│   │   ├── components/\n│   │   │   ├── layout/            Sidebar, TopBar, DemoBanner, Ticker\n│   │   │   ├── data/              KpiTile, StatusTile, PulseCard, SourceButton, TraceDrawer,\n│   │   │   │                      EpistemicTag, UnavailableState, TrendArrow\n│   │   │   ├── charts/            LineChart, Sparkline, SlopeChart, RadarChart, Sankey,\n│   │   │   │                      WorldMap, CycleChart, Scatter, BarList\n│   │   │   └── intel/             AlertList, EventRow, ImpactMatrix, NewsRow, SignalMatrix,\n│   │   │                          OpportunityTable, IndexWeights\n│   │   ├── api/                   client.ts, hooks (useIndicator, useSeries, useEvents…)\n│   │   ├── mocks/                 demo generators (MSW) — substituíveis por API real\n│   │   ├── types/                 contratos gerados do OpenAPI\n│   │   └── styles/                tokens.css (graphite, wood, forest, copper, off-white)\n├── backend/                       Python + FastAPI\n│   ├── app/\n│   │   ├── api/v1/                indicators, series, trade, events, news, signals, index, sources\n│   │   ├── models/                SQLAlchemy\n│   │   ├── schemas/               Pydantic\n│   │   ├── services/              signals.py, cycle.py, index.py, opportunity.py, risk.py\n│   │   └── core/                  config, auth, db\n│   └── tests/\n├── etl/\n│   ├── connectors/                comexstat.py, ibge_sidra.py, bcb_sgs.py, faostat.py,\n│   │                              comtrade.py, fred.py, eurostat.py, freight.py, news.py\n│   ├── transforms/                units.py, ncm_map.py, fx_convert.py\n│   ├── validation/                expectations por dataset\n│   └── flows/                     orquestração (Prefect/Airflow)\n├── db/migrations/                 Alembic\n└── infra/                         docker-compose, CI</pre>',{nodemo:true});
+ h+=panel('3 · Componentes-chave',"<div class='tw'><table class='t'><thead><tr><th>Componente</th><th>Responsabilidade</th><th>Contrato</th></tr></thead><tbody>"+[['SourceButton + TraceDrawer','“De onde veio este número?” em todo valor','source_id, period, collected_at, method, is_simulated'],['KpiTile / StatusTile','valor, variação, período, fonte, histórico','IndicatorSnapshot'],['PulseCard','ticker com seta e sparkline','PulseItem (polarity p/ exportador)'],['EpistemicTag','DADO · INDICADOR · ANÁLISE · HIPÓTESE · IMPACTO','kind enum'],['UnavailableState','DADO INDISPONÍVEL / EVIDÊNCIA INSUFICIENTE','reason'],['WorldMap / Sankey / SlopeChart','geografia, fluxo e rotação de destinos','TradeFlow[]'],['ImpactMatrix','evento → país → produto → rota → impacto + confiança','GeoEvent'],['SignalMatrix','regras de early warning por mercado','SignalRule, SignalState'],['IndexWeights','pesos configuráveis do índice','IndexConfig'],['DemoBanner','marcação obrigatória de dado simulado','global is_simulated']].map(function(r){return'<tr><td><b>'+r[0]+'</b></td><td class="small">'+r[1]+'</td><td class="mono small">'+r[2]+'</td></tr>'}).join('')+"</tbody></table></div>",{nodemo:true,flush:true});
+ h+=panel('4 · Modelo de dados (PostgreSQL)','<pre class="tree">-- dimensões\ndim_source(source_id PK, name, url, type, periodicity, coverage, methodology, license)\ndim_country(iso2 PK, iso3, name_pt, region, subregion, is_mercosur)\ndim_product(product_id PK, name, family, hs6, ncm8, unit_default)   -- plywood, veneer, LVL…\ndim_ncm(ncm8 PK, hs6, description_pt, product_id FK, valid_from, valid_to)\ndim_port(port_id PK, name, country_iso2, unlocode, lat, lon)\ndim_indicator(indicator_id PK, name, unit, kind, polarity, source_id FK, formula)\ndim_date(date PK, year, month, quarter)\n\n-- fatos\nfact_trade(date, flow{export|import}, reporter_iso2, partner_iso2, ncm8, uf_origin,\n           port_id, value_usd_fob, net_kg, qty_stat, qty_m3, source_id, collected_at,\n           version, is_simulated)\nfact_series(indicator_id, date, geo_iso2, value, source_id, collected_at, version, is_simulated)\nfact_price(item_id, date, value, currency, unit, basis{FOB|CIF|spot}, source_id, collected_at)\nfact_freight(route_id, date, usd_per_feu, transit_days, source_id)\n\n-- inteligência\ngeo_event(event_id, category, title, event_date, countries[], products[], routes[],\n          potential_impact{ALTO|MÉDIO|BAIXO}, confidence, evidence, source_url)\nnews_item(news_id, published_at, title, source, url, country, category, summary,\n          products[], impact_class{direto|indireto|contexto|monitor}, potential_impact)\nsignal_rule(rule_id, name, conditions jsonb, tone, version)\nsignal_state(rule_id, market, date, conditions_met, result{SINAL|INDICAÇÃO|NENHUM})\nindex_config(config_id, components jsonb, weights jsonb, created_by, created_at)\nanalysis_note(note_id, kind{analysis|hypothesis}, text, refs jsonb, author, created_at)\ndq_check(dataset, run_at, coverage, missing, inconsistencies, reliability)\n\n-- CELPLAC (Fase 5)\ncelplac_sales(date, product_id, customer_id, country_iso2, currency, qty_m3, value, margin)</pre>',{nodemo:true});
+ var pages=[['Overview','#overview','F1'],['World · Brazil · Regions · Countries','#world','F1'],['Timber · Veneer · Plywood · Panels · Species','#plywood','F1'],['Exports · Imports · Trade Flow · NCM · Competitors','#exports','F1'],['Prices · Logistics · FX · Macro','#prices','F1–F3'],['Geopolitics · News','#geopolitics','F1'],['Market Signals · Opportunity · Risk · Market Index','#signals','F4'],['Market Exposure · Market vs CELPLAC','#exposure','F5'],['Market AI · Reports','#ai','F6'],['Data Sources · Data Quality · Settings','#sources','F2–F3']];
+ h+=panel('5 · Páginas','<div class="tw"><table class="t"><thead><tr><th>Página</th><th>Fase com dado real</th></tr></thead><tbody>'+pages.map(function(p){return'<tr><td><a href="'+p[1]+'">'+p[0]+'</a></td><td class="mono">'+p[2]+'</td></tr>'}).join('')+'</tbody></table></div>',{nodemo:true,flush:true});
+ h+=panel('6 · Fontes necessárias','<p class="small" style="margin:0 0 8px">Catálogo completo em <a href="#sources">Data Sources</a>. Prioridade de integração:</p><ol class="small" style="margin:0;padding-left:18px;line-height:1.7"><li><b>Comex Stat</b> — exportações/importações por NCM, país, UF e URF (base de Exports, Trade Flow, NCM, Destination Shift).</li><li><b>Banco Central (SGS/PTAX)</b> — câmbio e juros.</li><li><b>IBGE (PEVS, PIM-PF) e SNIF</b> — produção florestal e industrial.</li><li><b>UN Comtrade + FAOSTAT</b> — comércio e produção mundiais, concorrentes, participação por destino.</li><li><b>FRED/Census, Eurostat, NBS, INEGI</b> — construção e macro dos destinos.</li><li><b>Frete (Drewry/FBX, licença a verificar) e ANTAQ</b> — logística.</li><li><b>ITTO, Ibá, ABIMCI, ANFIR</b> — preços e dados setoriais.</li><li><b>Feeds de notícias licenciados</b> — News Impact Engine.</li></ol>',{nodemo:true});
+ h+=panel('7 · Roadmap de integração dos dados reais',[['F1','Frontend navegável com DEMO DATA — Overview, Global Market, Brazil, Plywood, Veneer, Trade, News, Geopolitics. <b>Esta versão.</b>'],['F2','PostgreSQL + modelo de dados + ETL + histórico; pipeline de validação; API FastAPI servindo os mesmos contratos usados pelos mocks.'],['F3','Dados reais: Comex Stat → IBGE/SNIF → BCB → Comtrade/FAO → fontes setoriais e internacionais. Troca página a página: o selo DEMO sai apenas dos componentes cujo dado é real.'],['F4','Inteligência: Market Index (estudo de pesos), Opportunity Radar, Risk Radar, Early Warning com regras versionadas e backtest.'],['F5','CELPLAC: vendas, exportações, clientes, produtos, preços, margem, estoque → Exposure e Market vs CELPLAC.'],['F6','AI: Market AI com respostas citando fonte/período, relatórios automáticos e análise de cenários.']].map(function(p){return'<div class="phase"><div class="p">'+p[0]+'</div><div>'+p[1]+'</div></div>'}).join(''),{nodemo:true});
+ return h};
+
+/* ============ router ============ */
+var NAV=[[null,[['overview','Overview']]],['Global Market',[['world','World'],['brazil','Brazil'],['regions','Regions'],['countries','Countries']]],['Wood',[['timber','Timber'],['veneer','Veneer'],['plywood','Plywood'],['panels','Panels'],['species','Species']]],['Trade',[['exports','Exports'],['imports','Imports'],['tradeflow','Trade Flow'],['ncm','NCM Intelligence'],['competitors','Competitors']]],['Intelligence',[['prices','Prices'],['logistics','Logistics'],['fx','FX'],['macro','Macro'],['geopolitics','Geopolitics'],['news','News'],['signals','Market Signals'],['opportunity','Opportunity Radar'],['risk','Risk Radar'],['index','Market Index']]],['CELPLAC',[['exposure','Market Exposure','F5'],['vs','Market vs CELPLAC','F5'],['ai','Market AI','F6']]],['Plataforma',[['reports','Reports'],['sources','Data Sources'],['quality','Data Quality'],['blueprint','Blueprint'],['settings','Settings']]]];
+var TITLES={};NAV.forEach(function(g){g[1].forEach(function(i){TITLES[i[0]]=(g[0]?g[0]+' / ':'')+i[1]})});
+document.getElementById('nav').innerHTML=NAV.map(function(g){return(g[0]?'<div class="grp">'+g[0]+'</div>':'')+g[1].map(function(i){return'<a href="#'+i[0]+'" data-p="'+i[0]+'">'+i[1]+(i[2]?'<span class="tag">'+i[2]+'</span>':'')+'</a>'}).join('')}).join('');
+document.getElementById('ticker').innerHTML=(function(){var s=PULSE.map(function(p){var c=chg(p.s);return'<span>'+p.k+' <b>'+fmt(last(p.s),p.d)+'</b> <span class="'+tcls(c,p.pol)+'">'+trend(c)+' '+pct(c)+'</span> <span class="chip demo">DEMO</span></span>'}).join('');return s+s})();
+var CUR='overview',ARG=null;
+function go(p,arg){ARG=arg||null;if(location.hash==='#'+p)render();else location.hash=p}
+function render(){var p=(location.hash||'#overview').slice(1);if(!PAGES[p])p='overview';var arg=ARG;ARG=null;if(p!==CUR)window.scrollTo(0,0);CUR=p;CH=[];var v=document.getElementById('view');v.innerHTML=PAGES[p](arg);document.getElementById('crumb').textContent='CELPLAC GWMI / '+TITLES[p].toUpperCase();document.querySelectorAll('.nav a').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-p')===p)});document.getElementById('side').classList.remove('open');hydrate();bind();try{localStorage.setItem('gwmi-last',p)}catch(e){}}
+function bind(){var v=document.getElementById('view');
+ v.querySelectorAll('[data-per]').forEach(function(b){b.onclick=function(){PER=+b.getAttribute('data-per');render()}});
+ v.querySelectorAll('tr[data-go]').forEach(function(tr){tr.onclick=function(){go(tr.getAttribute('data-go'),tr.getAttribute('data-arg'))}});
+ var cs=document.getElementById('csel');if(cs)cs.onchange=function(){CSEL=cs.value;render()};
+ var gc=document.getElementById('gcat');if(gc)gc.querySelectorAll('button').forEach(function(b){b.onclick=function(){GCAT=b.getAttribute('data-c');render()}});
+ var nc=document.getElementById('ncls');if(nc)nc.querySelectorAll('button').forEach(function(b){b.onclick=function(){NCLS=b.getAttribute('data-c');render()}});
+ var nf=document.getElementById('nf');if(nf){nf.onsubmit=function(e){e.preventDefault()};['nq','np','nc','ny','nm'].forEach(function(id){var el=document.getElementById(id);el.addEventListener(id==='nq'?'change':'change',function(){NQ={q:document.getElementById('nq').value,p:document.getElementById('np').value,c:document.getElementById('nc').value,y:document.getElementById('ny').value,m:document.getElementById('nm').value};render()})})}
+ v.querySelectorAll('input[data-w]').forEach(function(r){r.oninput=function(){var i=+r.getAttribute('data-w');WEIGHTS[i]=+r.value;document.getElementById('wv'+i).textContent=r.value};r.onchange=function(){var y=window.scrollY;render();window.scrollTo(0,y)}});
+ var wr=document.getElementById('wreset');if(wr)wr.onclick=function(){WEIGHTS=null;render()};
+ var ts=document.getElementById('themeSeg');if(ts)ts.querySelectorAll('button').forEach(function(b){b.onclick=function(){var t=b.getAttribute('data-t');if(t)document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme');try{localStorage.setItem('gwmi-theme',t)}catch(e){}render()}});
+}
+try{var t0=localStorage.getItem('gwmi-theme');if(t0)document.documentElement.setAttribute('data-theme',t0)}catch(e){}
+document.getElementById('burger').onclick=function(){document.getElementById('side').classList.toggle('open')};
+window.addEventListener('hashchange',render);
+var rz;window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(hydrate,150)});
+render();
+})();
+</script>
