@@ -1,0 +1,12 @@
+# Agenda sugerida (container etl). Ajuste às datas reais de publicação de cada fonte.
+# m h dom mon dow  comando
+# Câmbio PTAX — dias úteis, após o fechamento (≈13h30 BRT)
+30 17 * * 1-5   gwmi-etl ptax -c USD -c EUR -c GBP --start $(date -d '-10 days' +\%F)
+# Comex Stat — dados do mês anterior costumam sair na 1ª quinzena; recarrega ano corrente e anterior (revisões)
+0 6 10,20 * *   gwmi-etl comex-trade --flow X --year $(date +\%Y) && gwmi-etl comex-trade --flow M --year $(date +\%Y)
+0 7 10 1-3 *    gwmi-etl comex-trade --flow X --year $(date -d '-1 year' +\%Y)
+0 5 1 * *       gwmi-etl comex-reference
+# FRED — housing starts (mensal)
+0 8 20 * *      gwmi-etl fred --series HOUST --indicator US_HOUSING_STARTS
+# Recalcular derivados, sinais e qualidade após as cargas
+0 9 * * *       gwmi-etl derive && gwmi-etl signals && gwmi-etl dq
