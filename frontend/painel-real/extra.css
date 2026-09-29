@@ -1,0 +1,55 @@
+
+:root{--real-bg:#DDE8E0;--real-ink:#1F4A34;--proxy:#7A5A9A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--real-bg:#1B2B22;--real-ink:#9FD1B3;--proxy:#B69AD6}}
+:root[data-theme="dark"]{--real-bg:#1B2B22;--real-ink:#9FD1B3;--proxy:#B69AD6}
+.real-band{background:var(--real-bg);color:var(--real-ink);font-size:12px;padding:6px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.real-band b{font-family:var(--f-mono);letter-spacing:.08em}
+.chip.real{color:var(--forest);border-color:color-mix(in srgb,var(--forest) 45%,transparent)}
+.chip.proxy{color:var(--proxy);border-color:color-mix(in srgb,var(--proxy) 45%,transparent)}
+.chip.ind{color:var(--slate);border-color:color-mix(in srgb,var(--slate) 45%,transparent)}
+.chip.na{color:var(--muted);border-style:dashed}
+.st .v.na{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;color:var(--muted);line-height:1.3}
+.st .foot{display:flex;gap:6px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:auto}
+.st{cursor:default}
+.sig{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:0}
+.sg{padding:12px 14px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);display:flex;flex-direction:column;gap:8px;min-width:0}
+.sg .h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.sg .mk{font-family:var(--f-disp);font-weight:700;font-size:17px;letter-spacing:.06em}
+.cond{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:6px;font-size:12.5px;align-items:baseline}
+.cond .m{font-family:var(--f-mono);text-align:center}
+.cond .o{font-family:var(--f-mono);font-size:11.5px;text-align:right;white-space:nowrap}
+.dots{display:flex;gap:3px}.dots i{width:9px;height:9px;border-radius:50%;border:1px solid var(--line);display:inline-block}
+.dots i.y{background:var(--pos);border-color:var(--pos)}.dots i.n{background:var(--surface2)}.dots i.u{background:repeating-linear-gradient(135deg,transparent 0 2px,var(--line) 2px 3px)}
+.res{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.05em;padding:1px 6px;border-radius:2px;white-space:nowrap}
+.res.SINAL{background:var(--neg);color:#fff}.res.INDICACAO{background:var(--warn);color:#fff}
+.res.SEM{border:1px solid var(--line);color:var(--muted)}.res.EVID{border:1px dashed var(--warn);color:var(--warn)}
+.gap-list{display:flex;flex-direction:column}
+.gap-list .li .ti{font-size:13px}
+.note{font-size:12px;color:var(--muted);line-height:1.5;max-width:90ch}
+.note b{color:var(--ink2);font-weight:600}
+.cyc{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.cy{display:flex;gap:12px;align-items:center}
+.cy svg{flex:none}
+.cy .ph2{font-family:var(--f-disp);font-weight:700;font-size:20px;letter-spacing:.06em}
+.kpi-hint{font-size:11px;color:var(--muted)}
+.drawer .sha{font-family:var(--f-mono);font-size:11px;word-break:break-all}
+.drawer .files{display:flex;flex-direction:column;gap:8px}
+.drawer .file{border:1px solid var(--line2);border-radius:3px;padding:8px;background:var(--surface2);font-size:12px;display:flex;flex-direction:column;gap:3px}
+.drawer .file a{word-break:break-all;font-family:var(--f-mono);font-size:11px}
+.drawer .q{font-family:var(--f-disp);letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--copper)}
+.drawer .val{font-family:var(--f-mono);font-size:26px}
+.hl td{background:color-mix(in srgb,var(--copper) 10%,transparent)}
+.stale{color:var(--warn)}
+.srow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.nav a .cnt{margin-left:auto;font-size:10px;font-family:var(--f-mono);color:var(--side-mute)}
+.brand .nm{font-size:20px}
+.empty{padding:14px;color:var(--muted);font-size:12.5px}
+td .src{margin-left:4px}
+.mini{font-size:11px;color:var(--muted);font-family:var(--f-mono)}
+
+[hidden]{display:none!important}
+.seg{flex-wrap:wrap;max-width:100%}.seg button{border-bottom:1px solid var(--line)}
+.sig{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+.cond{grid-template-columns:16px minmax(0,1fr)}
+.cond .o{grid-column:2;text-align:left;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+body{margin:0}
