@@ -184,3 +184,60 @@ def test_13_load_series_compact():
     assert (r["staged"], r["inserted"]) == (3, 3)
     assert one("SELECT obs_status FROM dw.fact_series WHERE indicator_code='BRENT' AND period='2026-09-02' AND NOT is_simulated") == "M"
     assert one("SELECT count(*) FROM raw.ingestion WHERE run_id = %(r)s", r=r["run_id"]) == 1
+
+
+def test_14_unchanged_file_is_not_reprocessed():
+    """Mesmo arquivo do mesmo endereço → run 'unchanged', sem staging nem nova versão."""
+    from gwmi_etl.connectors.open_sources import EurostatJob
+    f = FIX / "eurostat_sts_inpr_m.json"
+
+    def job():
+        j = EurostatJob("sts_inpr_m", "B-D", "MACRO_IP_YOY", file=f)
+        j.skip_unchanged = "always"   # simula o arquivo baixado (arquivo local é sempre reprocessado)
+        return j
+    r1 = run_job(DB, job(), S)
+    assert r1.status == "success" and r1.inserted == 4, r1.summary()
+    r2 = run_job(DB, job(), S)
+    assert r2.status == "unchanged" and r2.staged == 0, r2.summary()
+    st = DB.scalar("SELECT status FROM meta.etl_run WHERE run_id = %(r)s", {"r": r2.run_id})
+    assert st == "unchanged"
+    # a verificação fica registrada: o arquivo consultado e o SHA-256
+    assert DB.scalar("SELECT count(*) FROM raw.ingestion WHERE run_id = %(r)s", {"r": r2.run_id}) == 1
+
+
+def test_15_etl_role_grants():
+    DB.execute("DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='gwmi_etl_teste') THEN CREATE ROLE gwmi_etl_teste NOLOGIN; END IF; END $$")
+    assert "aplicadas" in DB.scalar("SELECT meta.grant_etl_role('gwmi_etl_teste')")
+    ok = DB.query("""SELECT has_table_privilege('gwmi_etl_teste','dw.fact_series','INSERT') ins,
+                            has_table_privilege('gwmi_etl_teste','stg.series','DELETE') del,
+                            has_function_privilege('gwmi_etl_teste','meta.grant_api_role(text)','EXECUTE') adm""")[0]
+    assert ok["ins"] and ok["del"] and not ok["adm"]
+
+
+def test_16_run_update_isolates_failures():
+    """Uma fonte falhando não derruba as outras; o resumo diz o que aconteceu com cada uma."""
+    from datetime import date
+    from gwmi_etl import update as up
+    from gwmi_etl.connectors.open_sources import DatosArJob
+    from gwmi_etl.pipeline import Job
+
+    class Broken(Job):
+        source_id, job_name, dataset = "indec", "teste.quebrado", "series"
+
+        def fetch(self, ctx):
+            raise ConnectionError("fonte fora do ar")
+
+    orig = up.plan
+    up.plan = lambda today, force=False: [
+        up.Step("macro", "INDEC IPI (arquivo)", lambda: DatosArJob("x", "MACRO_IP_YOY", file=FIX / "datos_ar_ipi.json")),
+        up.Step("macro", "Fonte quebrada", lambda: Broken()),
+    ]
+    try:
+        s = up.run_update(DB, S, today=date(2026, 10, 6), echo=lambda *_: None)
+    finally:
+        up.plan = orig
+    st = {o.label: o.status for o in s.outcomes}
+    assert st == {"INDEC IPI (arquivo)": "success", "Fonte quebrada": "failed"}, st
+    assert s.signals and s.dq                       # houve mudança → sinais recalculados; qualidade sempre
+    md = s.markdown()
+    assert "❌" in md and "fonte fora do ar" in md

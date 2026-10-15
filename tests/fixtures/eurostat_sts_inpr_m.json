@@ -1,0 +1,4 @@
+{"version":"2.0","class":"dataset","label":"Production in industry - monthly data","source":"ESTAT","updated":"2026-09-15T23:00:00+0200",
+ "value":{"0":1.2,"1":-0.4,"3":0.3},"status":{},
+ "id":["freq","indic_bt","nace_r2","s_adj","unit","geo","time"],"size":[1,1,1,1,1,1,4],
+ "dimension":{"time":{"label":"Time","category":{"index":{"2026-04":0,"2026-05":1,"2026-06":2,"2026-07":3},"label":{"2026-04":"2026-04","2026-05":"2026-05","2026-06":"2026-06","2026-07":"2026-07"}}}}}

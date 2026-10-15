@@ -6,7 +6,7 @@ import traceback
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-MODULES = sys.argv[1:] or ["test_parsers", "test_analytics", "test_pipeline_pg", "test_api_sql"]
+MODULES = sys.argv[1:] or ["test_parsers", "test_analytics", "test_open_sources", "test_pipeline_pg", "test_api_sql"]
 failed = passed = 0
 for name in MODULES:
     mod = importlib.import_module(name)

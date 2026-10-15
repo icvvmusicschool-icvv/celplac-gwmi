@@ -1,0 +1,7 @@
+[{"NC":"Nível Territorial (Código)","NN":"Nível Territorial","MC":"Unidade de Medida (Código)","MN":"Unidade de Medida","V":"Valor","D1C":"Brasil (Código)","D1N":"Brasil","D2C":"Variável (Código)","D2N":"Variável","D3C":"Ano (Código)","D3N":"Ano","D4C":"Tipo de produto da silvicultura (Código)","D4N":"Tipo de produto da silvicultura"},
+ {"V":"30000000","D1C":"1","D2C":"142","D2N":"Quantidade produzida na silvicultura","D3C":"2012","D4C":"33257"},
+ {"V":"5000000","D1C":"1","D2C":"143","D2N":"Valor da produção na silvicultura","D3C":"2012","D4C":"33257"},
+ {"V":"31318750","D1C":"1","D2C":"142","D2N":"Quantidade produzida na silvicultura","D3C":"2025","D4C":"33257"},
+ {"V":"5160386","D1C":"1","D2C":"143","D2N":"Valor da produção na silvicultura","D3C":"2025","D4C":"33257"},
+ {"V":"-","D1C":"1","D2C":"142","D2N":"Quantidade produzida na silvicultura","D3C":"2024","D4C":"33257"},
+ {"V":"4000000","D1C":"1","D2C":"143","D2N":"Valor da produção na silvicultura","D3C":"2024","D4C":"33257"}]

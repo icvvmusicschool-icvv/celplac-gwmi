@@ -15,12 +15,12 @@ IBGE…                 raw.ingestion        conjunto:   dim_*                  
 
 | Pasta | Conteúdo |
 |---|---|
-| `db/migrations/` | 22 migrações SQL (0009–0022 vieram das cargas reais). `db/migrate.sh` aplica com controle de checksum |
+| `db/migrations/` | 24 migrações SQL (0009–0024 vieram das cargas reais). `db/migrate.sh` aplica com controle de checksum |
 | `etl/` | Pacote `gwmi-etl`: conectores, pipeline, validação, gerador DEMO, CLI |
 | `core/` | Pacote `gwmi-core`: funções analíticas puras (sinais, ciclo, índice, correlação) usadas pelo ETL e pela API |
 | `backend/` | API FastAPI, 27 endpoints em `/v1` + `/health`, consultas em `app/sql/queries.sql` |
 | `frontend/src/api/` | Contratos TypeScript e cliente para o React da Fase 3 |
-| `tests/` | 46 testes; fixtures no formato das fontes reais |
+| `tests/` | 56 testes; fixtures no formato das fontes reais |
 | `infra/` | Agenda sugerida para o ETL (crontab) |
 | `scripts/` | `load_comex_local.py` (CSVs baixados), `browser_comex_to_neon.js` e `browser_series_to_neon.js` (carga via navegador → API HTTP do Neon), `browser_comtrade_collect.js` (Comtrade sem chave), `fred_csv_to_sql.py`, `signals_offline.py`, `browser_macro_collect.js` |
 
@@ -107,7 +107,7 @@ Os testes rodam de ponta a ponta contra um PostgreSQL real e cobrem:
 ## O que foi verificado nesta entrega e o que ainda falta confirmar
 
 **Verificado:**
-- As 22 migrações foram aplicadas em PostgreSQL 16 local e os 46 testes passaram.
+- As 24 migrações foram aplicadas em PostgreSQL 16 local e os 56 testes passaram.
 - No Neon, as mesmas migrações estão aplicadas e os dados reais foram conferidos:
   - totais do Comex contra uma carga local independente;
   - SHA-256 dos arquivos FRED e Comtrade contra os calculados na coleta;
@@ -123,19 +123,38 @@ Os testes rodam de ponta a ponta contra um PostgreSQL real e cobrem:
 - **Frete (Drewry/FBX) e ITTO:** licença de uso. Por isso entram via CSV manual.
 - **Comtrade com chave:** a API paga ou gratuita com chave dá SH6 e acesso sem o limite de 500 linhas. A pré-visualização basta para os totais SH4.
 
+## Atualização automática (GitHub Actions)
+
+`.github/workflows/etl.yml` roda `gwmi-etl update` todo dia às 07:17 (Brasília) e pode ser disparado à mão na aba **Actions** (com "force" para rodar tudo).
+
+| Grupo | Fontes | Quando |
+|---|---|---|
+| comex | Comex Stat, exportações do ano corrente (+ ano anterior em jan–mar) | diário; HEAD + SHA-256 evitam reprocessar arquivo igual |
+| ptax | BCB PTAX USD, EUR, GBP (últimos 15 dias) | diário |
+| fred | Housing starts, licenças, câmbio H.10, PPIs de frete/resina/compensado, Brent | diário |
+| macro | FRED a/a (INDPRO, TTLCONS), Eurostat (UE), NBS via DBnomics (China), INDEC (Argentina) | diário |
+| ibge | IPP madeira, PIM-PF madeira; PEVS e preço implícito da tora | diário; PEVS às segundas |
+| comtrade | Importações SH 4412 dos 31 mercados (14 meses); concorrentes anuais | segundas; concorrentes na 1ª segunda do mês |
+
+- **Arquivo igual = nada a fazer:** a execução fica registrada com status `unchanged` e o SHA-256 conferido (migração 0024).
+- **Isolamento:** uma fonte fora do ar não impede as outras; a execução termina em vermelho e o GitHub avisa por e-mail.
+- **Depois das fontes:** derivados só dos grupos que mudaram, sinais com referência no 1º dia do mês corrente, regras de qualidade. O resumo aparece na página da execução.
+- **Arquivos originais:** guardados como artefato da execução por 90 dias; `raw.ingestion.storage_path` aponta para ela.
+- **Papel de banco `gwmi_etl`:** grava dados, não altera o esquema. Criado no SQL Editor (`CREATE ROLE gwmi_etl LOGIN PASSWORD '…'; SELECT meta.grant_etl_role();`); a connection string vai só no segredo `GWMI_ETL_DATABASE_URL` do repositório. Migrações continuam com o dono do banco.
+
 ## API no ar (Render + Neon)
 
 A API FastAPI serve também o painel: `https://<serviço>.onrender.com/` abre o painel, que lê `/v1/panel` ao vivo.
 
 - **Chave de acesso:** toda rota `/v1/*` exige `X-API-Key` (ou `Authorization: Bearer`). As chaves ficam em `GWMI_API_KEYS` (vírgula separa várias; mínimo 32 caracteres). Sem chave configurada a API recusa tudo. `/health` e `/docs` não exigem chave e não expõem dados. `GWMI_OPEN_READ=1` libera só leitura — use apenas localmente.
-- **Papel de banco próprio (migração 0022):** a API conecta como `gwmi_api`, que lê todos os esquemas e só grava em `intel.index_config`. Crie o papel no Console do Neon (Roles → New role) e rode `SELECT meta.grant_api_role();`. Nunca use a string do `gwmi_owner` no servidor.
+- **Papel de banco próprio (migrações 0022–0023):** a API conecta como `gwmi_leitura`, que lê todos os esquemas e só grava em `intel.index_config`. Crie o papel **pelo SQL Editor do Neon**, com a sua senha: `CREATE ROLE gwmi_leitura LOGIN PASSWORD '…'; SELECT meta.grant_api_role('gwmi_leitura');`. Papéis criados pela tela Roles do Console entram em `neon_superuser` e podem apagar dados — não servem para a API. Nunca use a string do `gwmi_owner` no servidor.
 - **Render:** `render.yaml` é um Blueprint (Docker, região Virginia, health check em `/health`). `DATABASE_URL` é pedida na criação e não fica no repositório; `GWMI_API_KEYS` é gerada pelo Render.
 - **Painel:** `frontend/painel-real/build.py live` gera `backend/app/static/painel.html` (sem dados embutidos). `build.py snapshot …` gera o retrato publicado sem API.
 - **Neon Functions** não está disponível na região São Paulo; por isso o servidor é externo.
 
 ## Banco em produção — Neon
 
-- **Onde:** projeto `celplac-gwmi` (id `royal-breeze-27060137`), região AWS São Paulo, PostgreSQL 16, banco `gwmi`. As 22 migrações estão aplicadas (tabela `meta.schema_migrations`, com checksum).
+- **Onde:** projeto `celplac-gwmi` (id `royal-breeze-27060137`), região AWS São Paulo, PostgreSQL 16, banco `gwmi`. As 24 migrações estão aplicadas (tabela `meta.schema_migrations`, com checksum).
 - **Conectar a API:** `DATABASE_URL` é a connection string do console do Neon. Use o host *pooler* e `sslmode=require`, e **não versione a senha**.
 - **Credencial:** a senha usada nas cargas pelo navegador precisa ser trocada (Console → Branches → main → Roles → `gwmi_owner` → Reset password). A nova senha deve ir só para o `.env`/cofre do servidor da API, nunca para código ou conversa.
 - **Nenhum dado DEMO no Neon:** todas as linhas têm `is_simulated = false`.
