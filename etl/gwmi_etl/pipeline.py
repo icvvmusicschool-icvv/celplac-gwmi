@@ -30,6 +30,10 @@ SERIES_COLUMNS = ("run_id", "indicator_code", "geo_iso3", "period", "value", "ob
 BATCH = 50_000
 
 
+class Unchanged(Exception):
+    """A fonte foi consultada e o conteúdo é igual ao da última carga: nada a reprocessar."""
+
+
 # ----------------------------------------------------------------------
 # Raw store
 # ----------------------------------------------------------------------
@@ -96,13 +100,35 @@ class RunContext:
     def register_raw(self, uri: str, local: Path, http_status: int | None = None,
                      meta: dict | None = None, name: str | None = None) -> Path:
         stored, sha, size = self.raw.put_file(self.source_id, Path(local), name)
+        where = str(stored)
+        if self.settings.raw_archive:  # ex.: artefato do GitHub Actions — o disco do executor é descartado
+            where = f"{self.settings.raw_archive} :: {stored}"
         self.db.execute(
             """INSERT INTO raw.ingestion (run_id, source_id, uri, storage_path, content_sha256, bytes, http_status, meta)
                VALUES (%(r)s, %(s)s, %(u)s, %(p)s, %(h)s, %(b)s, %(st)s, %(m)s::jsonb)""",
-            {"r": self.run_id, "s": self.source_id, "u": uri, "p": str(stored), "h": sha, "b": size,
+            {"r": self.run_id, "s": self.source_id, "u": uri, "p": where, "h": sha, "b": size,
              "st": http_status, "m": json.dumps(meta or {})})
         self.ingestions.append({"uri": uri, "path": str(stored), "sha256": sha, "bytes": size})
         return stored
+
+    def previous_ingestion(self, uri: str) -> dict | None:
+        """Última ingestão do mesmo endereço por este job, numa carga que terminou bem."""
+        rows = self.db.query(
+            """SELECT i.content_sha256, i.bytes, i.meta FROM raw.ingestion i JOIN meta.etl_run r USING (run_id)
+               WHERE i.uri = %(u)s AND i.source_id = %(s)s AND i.run_id <> %(r)s
+                 AND r.status IN ('success','partial','unchanged') AND NOT r.is_simulated
+               ORDER BY i.run_id DESC LIMIT 1""", {"u": uri, "s": self.source_id, "r": self.run_id})
+        return rows[0] if rows else None
+
+    def unchanged_since_last(self) -> bool:
+        """Todos os arquivos desta carga têm o mesmo SHA-256 da carga anterior do mesmo endereço."""
+        if not self.ingestions:
+            return False
+        for ing in self.ingestions:
+            prev = self.previous_ingestion(ing["uri"])
+            if not prev or prev["content_sha256"] != ing["sha256"]:
+                return False
+        return True
 
 
 @dataclass
@@ -133,6 +159,9 @@ class Job:
     job_name: str = ""
     dataset: str = "series"            # 'trade' | 'series'
     is_simulated: bool = False
+    # True: arquivo baixado idêntico ao da última carga → status 'unchanged' (arquivo local sempre é reprocessado,
+    # salvo com "always" — quem passa um arquivo à mão quer a carga)
+    skip_unchanged: bool | str = False
 
     def params(self) -> dict:
         return {}
@@ -195,6 +224,9 @@ def run_job(db: Database, job: Job, settings: Settings) -> RunReport:
         raise ValueError(f"dataset não suportado por run_job: {job.dataset}")
     try:
         files = job.fetch(ctx)
+        check = job.skip_unchanged == "always" or (job.skip_unchanged is True and not getattr(job, "file", None))
+        if check and ctx.unchanged_since_last():
+            raise Unchanged("arquivo idêntico ao da última carga (mesmo SHA-256)")
         rejected: list[tuple] = []
 
         def valid_rows() -> Iterator[tuple]:
@@ -223,6 +255,9 @@ def run_job(db: Database, job: Job, settings: Settings) -> RunReport:
         dq_errors = [d for d in rep.dq if not d["passed"] and d["severity"] == "error"]
         rep.status = "partial" if (rep.rejected or dq_errors) else "success"
         finish_run(db, run_id, rep.status, rep.staged, rep.rejected)
+    except Unchanged as e:
+        rep.status, rep.error = "unchanged", None
+        finish_run(db, run_id, "unchanged", 0, 0, str(e))
     except Exception as e:  # noqa: BLE001 — registrar qualquer falha no run
         rep.status, rep.error = "failed", f"{type(e).__name__}: {e}"
         log.exception("falha no run %s", run_id)

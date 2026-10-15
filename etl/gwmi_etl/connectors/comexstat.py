@@ -9,10 +9,11 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 from pathlib import Path
 from typing import Iterator
 
-from ..pipeline import Job, RunContext, finish_run, http_download, month_start, parse_decimal, start_run, RawStore
+from ..pipeline import Job, RunContext, Unchanged, finish_run, http_download, month_start, parse_decimal, start_run, RawStore
 
 FLOW_FILE = {"X": "EXP", "M": "IMP"}
 
@@ -59,9 +60,24 @@ def parse_comex_trade(path: Path, flow: str, hs4: tuple[str, ...]) -> Iterator[d
             }
 
 
+def _head(url: str, settings) -> dict:
+    """Last-Modified / Content-Length / ETag do arquivo, sem baixá-lo (vazio se o servidor não informar)."""
+    import httpx
+    try:
+        with httpx.Client(timeout=60, follow_redirects=True, headers={"User-Agent": settings.user_agent}) as c:
+            r = c.head(url)
+            if r.status_code >= 400:
+                return {}
+            return {k: r.headers[h] for k, h in (("last_modified", "last-modified"), ("content_length", "content-length"),
+                                                  ("etag", "etag")) if h in r.headers}
+    except Exception:  # noqa: BLE001 — sem HEAD, baixa normalmente
+        return {}
+
+
 class ComexTradeJob(Job):
     source_id = "comexstat"
     dataset = "trade"
+    skip_unchanged = True
 
     def __init__(self, flow: str, year: int, file: Path | None = None, hs4: tuple[str, ...] | None = None):
         assert flow in ("X", "M")
@@ -82,9 +98,15 @@ class ComexTradeJob(Job):
         if self.file:
             return [ctx.register_raw(f"file://{self.file.resolve()}", self.file, None, {"mode": "local"}, name)]
         url = ctx.settings.comex_bulk_url.format(flow=FLOW_FILE[self.flow], year=self.year)
+        head = _head(url, ctx.settings)
+        prev = ctx.previous_ingestion(url)
+        if head and prev:
+            pm = prev["meta"] if isinstance(prev["meta"], dict) else json.loads(prev["meta"] or "{}")
+            if all(pm.get(k) == v for k, v in head.items()) and any(k in pm for k in head):
+                raise Unchanged(f"{name}: mesmo Last-Modified/tamanho da última carga ({head})")
         tmp, status = http_download(url, ctx.settings)
         try:
-            return [ctx.register_raw(url, tmp, status, {"mode": "download"}, name)]
+            return [ctx.register_raw(url, tmp, status, {"mode": "download", **head}, name)]
         finally:
             tmp.unlink(missing_ok=True)
 

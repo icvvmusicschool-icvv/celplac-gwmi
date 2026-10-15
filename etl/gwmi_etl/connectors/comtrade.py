@@ -75,25 +75,37 @@ class ComtradeJob(Job):
 # arquivo de referência Reporters.json (a Comtrade usa códigos próprios, ex.: 842 = EUA, 251 = França).
 # Filtros customsCode=C00, motCode=0, partner2Code=0 → só os totais (sem quebra por modal/regime).
 # ----------------------------------------------------------------------
+# Mercados monitorados nas importações mensais (destinos do compensado BR + grandes importadores)
+MARKETS = ("USA", "MEX", "GBR", "DEU", "ITA", "BEL", "NLD", "DOM", "SWE", "NZL", "DNK", "ESP", "FRA", "CAN", "JPN",
+           "KOR", "AUS", "POL", "CHL", "ARG", "URY", "PRY", "PER", "COL", "IRL", "PRT", "CHN", "IND", "ZAF", "SAU", "TUR")
+
+
+def _int(v):
+    return None if v is None else float(round(v))
+
+
 def parse_comtrade_preview(payload: dict, reporters: dict[int, str], exclude_reporters: tuple[str, ...] = ("BRA",),
-                           partners: dict[int, str] | None = None) -> Iterator[dict]:
+                           partners: dict[int, str] | None = None, only: tuple[str, ...] | None = None) -> Iterator[dict]:
+    """Valor arredondado a US$ inteiro (como nas cargas anteriores); peso também, nos dados mensais."""
     partners = partners or {0: "WLD", 76: "BRA"}
     for d in payload.get("data", []):
         flow = {"X": "X", "M": "M"}.get(str(d.get("flowCode", "")).upper()[:1])
         if flow is None:
             continue
         rep = reporters.get(int(d["reporterCode"]))
-        if rep in exclude_reporters:
+        if rep in exclude_reporters or (only and rep not in only):
             continue
         per = str(d["period"])
         period = date(int(per[:4]), int(per[4:6]) if len(per) >= 6 else 1, 1)
         par = partners.get(int(d.get("partnerCode", -1)))
         val = parse_decimal(d.get("fobvalue")) if flow == "X" else None
         val = val if val is not None else parse_decimal(d.get("primaryValue"))
+        kg = parse_decimal(d.get("netWgt")) or None
+        monthly = len(per) >= 6
         row = {"flow": flow, "period": period, "reporter_code": rep or f"#{d['reporterCode']}",
                "partner_code": par or "XXX", "code_scheme": "iso3",
-               "ncm8": str(d["cmdCode"]).ljust(6, "0")[:6] + "00", "value_usd_fob": val,
-               "net_kg": parse_decimal(d.get("netWgt")), "qty_stat": None}
+               "ncm8": str(d["cmdCode"]).ljust(6, "0")[:6] + "00", "value_usd_fob": _int(val),
+               "net_kg": _int(kg) if monthly else kg, "qty_stat": None}
         if rep is None:
             row["_reject"] = f"reportante Comtrade {d['reporterCode']} sem ISO3 em Reporters.json"
         yield row
@@ -102,16 +114,19 @@ def parse_comtrade_preview(payload: dict, reporters: dict[int, str], exclude_rep
 class ComtradePreviewJob(Job):
     """Uma consulta = um período. freq A → period AAAA (grava 1º de janeiro = ano inteiro)."""
     source_id, dataset = "comtrade", "trade"
+    skip_unchanged = True
 
     def __init__(self, cmd: str, flow: str, period: str, freq: str = "A", partner: str = "0",
-                 reporter: str | None = None, file: Path | None = None):
+                 reporter: str | None = None, file: Path | None = None, only: tuple[str, ...] | None = None):
         self.cmd, self.flow, self.period, self.freq, self.partner, self.reporter, self.file = (
             cmd, flow, period, freq, partner, reporter, file)
+        self.only = only
         self.job_name = f"comtrade.preview.{freq.lower()}.{flow.lower()}.{cmd}"
 
     def params(self):
         return {"cmd": self.cmd, "flow": self.flow, "period": self.period, "freq": self.freq,
-                "partner": self.partner, "reporter": self.reporter, "mode": "public preview (sem chave)"}
+                "partner": self.partner, "reporter": self.reporter, "mode": "public preview (sem chave)",
+                "markets": len(self.only) if self.only else "todos"}
 
     def _query(self) -> dict:
         q = {"cmdCode": self.cmd, "flowCode": self.flow, "partnerCode": self.partner, "period": self.period,
@@ -145,7 +160,7 @@ class ComtradePreviewJob(Job):
         reporters = _reporters(ctx)
         known = {r["iso3"] for r in ctx.db.query("SELECT iso3 FROM dw.dim_country")}
         for f in files:
-            for r in parse_comtrade_preview(json.loads(Path(f).read_text(encoding="utf-8")), reporters):
+            for r in parse_comtrade_preview(json.loads(Path(f).read_text(encoding="utf-8")), reporters, only=self.only):
                 if "_reject" not in r and r["reporter_code"] not in known:
                     r["_reject"] = f"reportante {r['reporter_code']} sem país em dw.dim_country"
                 yield r

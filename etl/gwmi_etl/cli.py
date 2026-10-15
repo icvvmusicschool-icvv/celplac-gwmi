@@ -264,5 +264,22 @@ def status():
         click.echo(f"{r['source_id']:<12} {r['integration_status']:<11} último período: {r['last_period']}  run: {r['last_run_status']}")
 
 
+@main.command("update")
+@click.option("--only", "only", multiple=True, type=click.Choice(["comex", "ptax", "fred", "macro", "ibge", "comtrade"]),
+              help="rodar só estes grupos (repetível)")
+@click.option("--force", is_flag=True, help="rodar também as fontes semanais/mensais e recalcular tudo")
+def update(only, force):
+    """Atualização automática diária: todas as fontes, derivados, sinais e qualidade."""
+    import os
+    from .update import run_update
+    only = tuple(only) or tuple(x for x in os.environ.get("GWMI_ONLY", "").replace(",", " ").split()
+                                if x in ("comex", "ptax", "fred", "macro", "ibge", "comtrade"))
+    force = force or os.environ.get("GWMI_FORCE", "").lower() in ("1", "true", "yes")
+    summ = run_update(_db(), settings(), only=only, force=force, echo=click.echo)
+    if summ.failed:
+        click.echo(f"\n{len(summ.failed)} fonte(s) falharam: " + "; ".join(f"{o.label}: {o.error}" for o in summ.failed))
+        raise SystemExit(1)
+
+
 if __name__ == "__main__":
     main()

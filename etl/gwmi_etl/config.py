@@ -14,8 +14,10 @@ def _env(name: str, default: str | None = None) -> str | None:
 class Settings:
     database_url: str = field(default_factory=lambda: _env("DATABASE_URL", "postgresql://gwmi:gwmi@localhost:5432/gwmi"))
     raw_dir: Path = field(default_factory=lambda: Path(_env("GWMI_RAW_DIR", "./data/raw")))
+    # onde o raw fica guardado quando o disco local é temporário (ex.: "github-actions:<url do run>")
+    raw_archive: str | None = field(default_factory=lambda: _env("GWMI_RAW_ARCHIVE"))
     http_timeout: float = field(default_factory=lambda: float(_env("GWMI_HTTP_TIMEOUT", "120")))
-    user_agent: str = "CELPLAC-GWMI-ETL/0.2 (+market intelligence; contato interno)"
+    user_agent: str = "CELPLAC-GWMI-ETL/0.3 (+market intelligence; contato interno)"
 
     # Comex Stat — arquivos em lote e tabelas auxiliares (verificar URLs vigentes no portal)
     comex_bulk_url: str = field(default_factory=lambda: _env(

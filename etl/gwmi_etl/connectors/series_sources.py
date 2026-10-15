@@ -93,6 +93,7 @@ def parse_fred_csv(text: str, indicator_code: str, geo: str) -> Iterator[dict]:
 
 class FredJob(Job):
     source_id, dataset = "fred", "series"
+    skip_unchanged = True
 
     def __init__(self, series_id: str, indicator_code: str, geo: str = "USA", start: date | None = None,
                  file: Path | None = None):
@@ -172,6 +173,7 @@ def parse_sidra(payload: list, indicator_code: str, match: dict[str, str], geo: 
 
 class SidraJob(Job):
     source_id, dataset = "ibge_sidra", "series"
+    skip_unchanged = True
 
     def __init__(self, path: str, indicator_code: str, match: dict[str, str], scale: float = 1.0,
                  file: Path | None = None):
@@ -236,6 +238,7 @@ def parse_pevs(payload: list, spec: dict[str, tuple[str, ...]] = PEVS_SPEC, geo:
 
 class PevsJob(Job):
     source_id, dataset, job_name = "ibge_sidra", "series", "ibge.sidra.pevs291"
+    skip_unchanged = True
 
     def __init__(self, file: Path | None = None):
         self.file = file
