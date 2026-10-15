@@ -64,7 +64,15 @@ def _head(url: str, settings) -> dict:
     """Last-Modified / Content-Length / ETag do arquivo, sem baixá-lo (vazio se o servidor não informar)."""
     import httpx
     try:
-        with httpx.Client(timeout=60, follow_redirects=True, headers={"User-Agent": settings.user_agent}) as c:
+        from ..pipeline import ssl_context_with_aia
+        try:
+            verify = True
+            with httpx.Client(timeout=60, follow_redirects=True, headers={"User-Agent": settings.user_agent}) as c:
+                c.head(url)
+        except httpx.ConnectError as e:
+            verify = (ssl_context_with_aia(url) or True) if "CERTIFICATE_VERIFY_FAILED" in str(e) else True
+        with httpx.Client(timeout=60, follow_redirects=True, headers={"User-Agent": settings.user_agent},
+                          verify=verify) as c:
             r = c.head(url)
             if r.status_code >= 400:
                 return {}
