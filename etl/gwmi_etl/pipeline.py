@@ -69,6 +69,58 @@ class RawStore:
         return dest, sha, len(data)
 
 
+def ssl_context_with_aia(url: str, cafile: str | None = None):
+    """Para servidores que não enviam o certificado intermediário (comum em sites gov.br).
+
+    Navegadores completam a cadeia sozinhos (AIA); o Python não. Aqui lemos o certificado do servidor,
+    baixamos o intermediário pelo endereço "CA Issuers" que ele mesmo declara e validamos a cadeia
+    completa contra as raízes confiáveis de sempre (certifi). Cadeia parcial NÃO é aceita: um intermediário
+    falso não chega a uma raiz confiável e a conexão continua sendo recusada.
+    """
+    import socket
+    import ssl
+    from urllib.parse import urlparse
+
+    import certifi
+    import httpx
+    from cryptography import x509
+    from cryptography.hazmat.primitives.serialization import Encoding
+    from cryptography.x509.oid import AuthorityInformationAccessOID, ExtensionOID
+
+    u = urlparse(url)
+    probe = ssl.create_default_context()
+    probe.check_hostname, probe.verify_mode = False, ssl.CERT_NONE   # só para LER o certificado
+    with socket.create_connection((u.hostname, u.port or 443), timeout=30) as sock:
+        with probe.wrap_socket(sock, server_hostname=u.hostname) as tls:
+            cert = x509.load_der_x509_certificate(tls.getpeercert(binary_form=True))
+    pems: list[str] = []
+    for _ in range(4):
+        try:
+            aia = cert.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_INFORMATION_ACCESS).value
+        except x509.ExtensionNotFound:
+            break
+        urls = [d.access_location.value for d in aia if d.access_method == AuthorityInformationAccessOID.CA_ISSUERS]
+        if not urls:
+            break
+        data = httpx.get(urls[0], timeout=30, follow_redirects=True).content
+        try:
+            issuer = x509.load_der_x509_certificate(data)
+        except ValueError:
+            issuer = x509.load_pem_x509_certificate(data)
+        pems.append(issuer.public_bytes(Encoding.PEM).decode())
+        if issuer.issuer == issuer.subject:
+            break
+        cert = issuer
+    if not pems:
+        return None
+    ctx = ssl.create_default_context(cafile=cafile or certifi.where())
+    if hasattr(ssl, "VERIFY_X509_PARTIAL_CHAIN"):
+        ctx.verify_flags &= ~ssl.VERIFY_X509_PARTIAL_CHAIN
+    ctx.load_verify_locations(cadata="".join(pems))
+    log.info("cadeia TLS completada via AIA para %s (%d certificado(s))", u.hostname, len(pems))
+    return ctx
+
+
 def http_download(url: str, settings: Settings, params: dict | None = None,
                   headers: dict | None = None) -> tuple[Path, int]:
     """Baixa em streaming para arquivo temporário. Retorna (caminho, status HTTP)."""
@@ -76,13 +128,25 @@ def http_download(url: str, settings: Settings, params: dict | None = None,
 
     h = {"User-Agent": settings.user_agent, **(headers or {})}
     tmp = Path(tempfile.mkstemp(prefix="gwmi_")[1])
-    with httpx.Client(timeout=settings.http_timeout, follow_redirects=True, headers=h) as c:
-        with c.stream("GET", url, params=params) as r:
-            r.raise_for_status()
-            with open(tmp, "wb") as f:
-                for chunk in r.iter_bytes(1 << 20):
-                    f.write(chunk)
-            return tmp, r.status_code
+
+    def get(verify) -> int:
+        with httpx.Client(timeout=settings.http_timeout, follow_redirects=True, headers=h, verify=verify) as c:
+            with c.stream("GET", url, params=params) as r:
+                r.raise_for_status()
+                with open(tmp, "wb") as f:
+                    for chunk in r.iter_bytes(1 << 20):
+                        f.write(chunk)
+                return r.status_code
+
+    try:
+        return tmp, get(True)
+    except httpx.ConnectError as e:
+        if "CERTIFICATE_VERIFY_FAILED" not in str(e):
+            raise
+        ctx = ssl_context_with_aia(url)
+        if ctx is None:
+            raise
+        return tmp, get(ctx)
 
 
 # ----------------------------------------------------------------------
